@@ -17,7 +17,10 @@ html {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    background: #362a2c;
+}
+
+body {
+    background: url('/imgs/background_tile.jpg') repeat;
 }
 
 *,
@@ -32,8 +35,6 @@ html {
     height: 90vh;
     overflow: hidden;
     margin: 2em auto;
-    padding: 2em;
-    background: #cb9c53;
     border-radius: 0.5em;
 }
 

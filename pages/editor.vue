@@ -5,28 +5,56 @@
                 v-html="
                     $t('guide_messages.stage_' + guide.stage + '_' + guide.step)
                 "
-            ></p>
+            />
+            <nuxt-link
+                :to="{ name: 'intermezzo' }"
+                v-if="guide.enable_continue"
+            >
+                {{ $t('continue') }}
+            </nuxt-link>
         </guide-bubble>
-        <div></div>
+        <div />
         <konva-canvas />
     </div>
 </template>
 
 <script>
 import { setTimeout, clearTimeout } from 'timers'
+import { mapState } from 'vuex'
 import KonvaCanvas from '~/components/Canvas.vue'
 import GuideBubble from '~/components/Bubble.vue'
 
 export default {
+    components: {
+        KonvaCanvas,
+        GuideBubble
+    },
     data() {
         return {
             guide: {
                 stage: 1,
                 step: 1,
+                enable_continue: false,
                 timeout: null,
                 timeoutTime: 10000
             }
         }
+    },
+    computed: {
+        ...mapState({
+            step: (state) => state.step,
+            stage: (state) => state.stage
+        })
+    },
+    created() {
+        this.timeout = setTimeout(() => {
+            this.guide.step = 2
+            this.$bus.$emit('editor_higlightTool', 'scrappingKnife')
+        }, 3000)
+
+        this.$bus.$on('editor_continueDialog', (eventData) => {
+            this.continueGuideDialog(eventData)
+        })
     },
     methods: {
         continueGuideDialog(data) {
@@ -54,20 +82,6 @@ export default {
                 }
             }
         }
-    },
-    components: {
-        KonvaCanvas,
-        GuideBubble
-    },
-    created() {
-        this.timeout = setTimeout(() => {
-            this.guide.step = 2
-            this.$bus.$emit('editor_higlightTool', 'scrappingKnife')
-        }, 3000)
-
-        this.$bus.$on('editor_continueDialog', (eventData) => {
-            this.continueGuideDialog(eventData)
-        })
     }
 }
 </script>

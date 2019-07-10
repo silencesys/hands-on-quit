@@ -1,12 +1,13 @@
 <template>
-    <div class="container">
+    <div class="content-container">
         <header>
             <h1>{{ $t('site_title') }}</h1>
-            <p>{{ $t('site_description') }}</p>
-            <nuxt-link :to="{ name: 'editor' }">
-                {{ $t('site_start_button') }}
-            </nuxt-link>
         </header>
+
+        <p>{{ $t('site_description') }}</p>
+        <nuxt-link :to="{ name: 'editor' }">
+            {{ $t('site_start_button') }}
+        </nuxt-link>
     </div>
 </template>
 
@@ -16,4 +17,11 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.content-container {
+    background: #d6c49f;
+    padding: 3em;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+</style>

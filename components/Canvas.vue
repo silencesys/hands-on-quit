@@ -1,71 +1,98 @@
 <template>
     <div>
-        <button
-            @click="eraseContent"
-            :class="{ higlighted: toolbox.scrappingKnife.highlighted }"
-        >
-            {{ $t('tools.scrapping_knife') }}
-        </button>
-        <button
-            @click="resizeCanvas"
-            :class="{ higlighted: toolbox.cuttingKnife.highlighted }"
-        >
-            {{ $t('tools.cutting_knife') }}
-        </button>
-        <button
-            @click="powderContent"
-            :class="{ higlighted: toolbox.powder.highlighted }"
-        >
-            {{ $t('tools.powder') }}
-        </button>
-        <button
-            @click="addLiningDots"
-            :class="{ higlighted: toolbox.lines.highlighted }"
-        >
-            {{ $t('tools.add_lines') }}
-        </button>
-        <button
-            @click="drawWithInk"
-            :class="[{ higlighted: toolbox.ink.highlighted }, 'button-ink']"
-        >
-            {{ $t('tools.ink') }}
-        </button>
-
-        <div
-            id="konva-container"
-            :class="canvasSize.classes[canvasSize.index]"
-            ref="container"
-        >
-            <v-stage
-                ref="stage"
-                :config="stageSize"
-                @mouseup="handleMouseUp"
-                @mousemove="handleMouseMove"
-                @touchend="handleMouseUp"
-                @touchmove="handleMouseMove"
-                @mousedown="handleMouseDown"
-                @touchstart="handleMouseDown"
+        <div class="toolbox-wrapper">
+            <button
+                @click="eraseContent"
+                :class="[
+                    { higlighted: toolbox.scrappingKnife.highlighted },
+                    'button-box',
+                    'scrapping-knife'
+                ]"
             >
-                <v-layer ref="background"></v-layer>
-                <v-layer ref="manuscript"></v-layer>
-                <v-layer ref="grid">
-                    <v-circle
-                        :config="circle"
-                        v-for="(circle, index) in circles"
-                        :key="'circle' + index"
-                        @dragmove="adjustLines($event, index)"
-                        ref="circle"
-                        class="fillShape"
-                    />
-                    <v-line
-                        :config="line"
-                        v-for="(line, index) in lines"
-                        :key="'line' + index"
-                        class="grid-line"
-                    />
-                </v-layer>
-                <v-layer ref="palimpsest"></v-layer>
-            </v-stage>
+                {{ $t('tools.scrapping_knife') }}
+            </button>
+            <button
+                @click="resizeCanvas"
+                :class="[
+                    { higlighted: toolbox.cuttingKnife.highlighted },
+                    'button-box',
+                    'cutting-knife'
+                ]"
+            >
+                {{ $t('tools.cutting_knife') }}
+            </button>
+            <button
+                @click="powderContent"
+                :class="[
+                    { higlighted: toolbox.powder.highlighted },
+                    'button-box',
+                    'powder'
+                ]"
+            >
+                {{ $t('tools.powder') }}
+            </button>
+            <button
+                @click="addLiningDots"
+                :class="[
+                    { higlighted: toolbox.lines.highlighted },
+                    'button-box',
+                    'button-box-right',
+                    'ruler'
+                ]"
+            >
+                {{ $t('tools.add_lines') }}
+            </button>
+            <button
+                @click="drawWithInk"
+                :class="[
+                    { higlighted: toolbox.ink.highlighted },
+                    'button-box',
+                    'button-box-right',
+                    'ink'
+                ]"
+            >
+                {{ $t('tools.ink') }}
+            </button>
+        </div>
+
+        <div class="table">
+            <div
+                id="konva-container"
+                :class="canvasSize.classes[canvasSize.index]"
+                ref="container"
+                :style="'background-image: url(' + this.customBackground + ');'"
+            >
+                <v-stage
+                    ref="stage"
+                    :config="stageSize"
+                    @mouseup="handleMouseUp"
+                    @mousemove="handleMouseMove"
+                    @touchend="handleMouseUp"
+                    @touchmove="handleMouseMove"
+                    @mousedown="handleMouseDown"
+                    @touchstart="handleMouseDown"
+                >
+                    <v-layer ref="background"></v-layer>
+                    <v-layer ref="manuscript"></v-layer>
+                    <v-layer ref="grid">
+                        <v-circle
+                            :config="circle"
+                            v-for="(circle, index) in circles"
+                            :key="'circle' + index"
+                            @dragmove="adjustLines($event, index)"
+                            ref="circle"
+                            class="fillShape"
+                        />
+                        <v-line
+                            :config="line"
+                            v-for="(line, index) in lines"
+                            :key="'line' + index"
+                            class="grid-line"
+                        />
+                    </v-layer>
+                    <v-layer ref="palimpsest"></v-layer>
+                </v-stage>
+            </div>
         </div>
     </div>
 </template>
@@ -75,6 +102,12 @@ let stage = null
 let context = null
 
 export default {
+    props: {
+        customBackground: {
+            type: String,
+            default: '/imgs/background_canvas.png'
+        }
+    },
     data() {
         return {
             stageSize: {
@@ -105,10 +138,11 @@ export default {
             },
             timeout: null,
             toolbox: {
+                step: 0,
                 scrappingKnife: {
                     highlighted: false,
                     used: false,
-                    enabled: false
+                    enabled: true
                 },
                 cuttingKnife: {
                     highlighted: false,
@@ -133,6 +167,9 @@ export default {
                 }
             }
         }
+    },
+    watch: {
+        'toolbox.step': 'unlockTools'
     },
     computed: {
         currentLayer() {
@@ -160,15 +197,65 @@ export default {
         })
     },
     methods: {
-        highlight(eventData) {
-            this.toolbox[eventData].highlighted = true
+        unlockTools() {
+            switch (this.toolbox.step) {
+                case 0:
+                    this.toolbox.lines.enabled = false
+                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.cuttingKnife.enabled = false
+                    this.toolbox.powder.enabled = false
+                    this.toolbox.ink.enabled = false
+                    break
+                case 1:
+                    this.toolbox.lines.enabled = false
+                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.cuttingKnife.enabled = true
+                    this.toolbox.powder.enabled = false
+                    this.toolbox.ink.enabled = false
+                    break
+                case 2:
+                    this.toolbox.lines.enabled = false
+                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.cuttingKnife.enabled = false
+                    this.toolbox.powder.enabled = true
+                    this.toolbox.ink.enabled = false
+                    break
+                case 3:
+                    this.toolbox.lines.enabled = true
+                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.cuttingKnife.enabled = false
+                    this.toolbox.powder.enabled = false
+                    this.toolbox.ink.enabled = false
+                    break
+                case 4:
+                    this.toolbox.lines.enabled = false
+                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.cuttingKnife.enabled = false
+                    this.toolbox.powder.enabled = false
+                    this.toolbox.ink.enabled = true
+            }
         },
+        /**
+         * Highlight one tool from toolbox.
+         */
+        highlight(toolName) {
+            this.toolbox[toolName].highlighted = true
+        },
+        /**
+         * Canvas, handle mouse down event, if user can draw, this will
+         * start drawing.
+         */
         handleMouseDown(e) {
             if (this.canDraw === true) {
                 this.isDrawing = true
             }
             this.lastPointerPosition = stage.getPointerPosition()
         },
+        /**
+         * Make the canvas responsive.
+         * It is based on container size and it will definitely
+         * need some more love.
+         */
         fitStageToContainer() {
             const container = this.$refs.container
 
@@ -182,6 +269,10 @@ export default {
             this.stageSize.width = width
             this.stageSize.height = height
         },
+        /**
+         * Handle mouse move, this is drawing event and all the drawing
+         * stuff happens there.
+         */
         handleMouseMove(e) {
             if (!this.isDrawing) {
                 return
@@ -212,10 +303,21 @@ export default {
             this.lastPointerPosition = pos
             this.layers.background.batchDraw()
         },
+        /**
+         * When we click outside or just leave the area,
+         * the drawing should stop.
+         */
         handleMouseUp(e) {
             this.isDrawing = false
         },
+        /**
+         * Here we'll set colour for the ink brush.
+         */
         drawWithInk() {
+            if (!this.toolbox.ink.enabled) {
+                return
+            }
+
             this.canDraw = true
             this.toolbox.ink.highlighted = false
             this.toolbox.ink.used = true
@@ -225,7 +327,15 @@ export default {
                 size: 5
             }
         },
+        /**
+         * This is actually not an eraser, but another brush
+         * with similar colour to the background.
+         */
         eraseContent() {
+            if (!this.toolbox.scrappingKnife.enabled) {
+                return
+            }
+
             this.canDraw = true
             this.toolbox.scrappingKnife.highlighted = false
 
@@ -236,19 +346,28 @@ export default {
                     step: 3,
                     highlightTool: 'cuttingKnife'
                 })
+                this.toolbox.step++
             }
 
             this.brushConfig = {
-                color: 'RGBA(217, 170, 98, 0.1)',
+                color: 'RGBA(220, 202, 167, 0.1)',
                 size: 50
             }
         },
+        /**
+         * Powder is also done with brush.
+         */
         powderContent() {
+            if (!this.toolbox.powder.enabled) {
+                return
+            }
+
             this.canDraw = true
             this.toolbox.powder.highlighted = false
 
             if (!this.toolbox.powder.used) {
                 this.toolbox.powder.used = true
+                this.toolbox.step++
                 this.$bus.$emit('editor_continueDialog', {
                     stage: 1,
                     step: 6,
@@ -257,11 +376,23 @@ export default {
             }
 
             this.brushConfig = {
-                color: 'RGBA(240, 194, 125, 0.1)',
+                color: 'RGBA(230, 217, 191, 0.1)',
                 size: 100
             }
         },
+        /**
+         * This method will add dots on the canvas and prepare lines
+         * which are connecting them. User is actually not drawing lines
+         * but is moving with invisible circle, that is connected with line.
+         *
+         * There is much better method to draw lines in API, but there
+         * was not enough time to implement it.
+         */
         addLiningDots() {
+            if (!this.toolbox.lines.enabled) {
+                return
+            }
+
             this.canDraw = false
             this.toolbox.lines.highlighted = false
             const container = this.$refs.container
@@ -395,7 +526,16 @@ export default {
                 }
             ]
         },
+        /**
+         * This method handles movement of the invisible circles, when
+         * user reaches another dot the invisible dot gets locked so
+         * he/she can't move it again.
+         */
         adjustLines(e, index) {
+            if (!this.toolbox.lines.enabled) {
+                return
+            }
+
             const points = [
                 this.circles[index - 1].x,
                 this.circles[index - 1].y,
@@ -423,11 +563,12 @@ export default {
 
                         if (this.toolbox.lines.connected === 3) {
                             this.toolbox.lines.enabled = false
-
+                            this.toolbox.step++
                             this.$bus.$emit('editor_continueDialog', {
                                 stage: 1,
                                 step: 7,
-                                highlightTool: 'ink'
+                                highlightTool: 'ink',
+                                disableTimeout: true
                             })
                         }
                     }
@@ -442,8 +583,19 @@ export default {
             canvas = canvas[3]
             context = canvas.getContext('2d')
         },
+        /**
+         * This is just a loop through array of classes which changes
+         * the size of the canvas.
+         *
+         * I'm pretty sure that there is a nicer way how to do it.
+         */
         resizeCanvas() {
             this.toolbox.cuttingKnife.highlighted = false
+
+            if (!this.toolbox.cuttingKnife.enabled) {
+                return
+            }
+
             clearTimeout(this.timeout)
 
             if (!this.toolbox.cuttingKnife.used) {
@@ -455,6 +607,7 @@ export default {
 
                 this.timeout = setTimeout(() => {
                     this.toolbox.cuttingKnife.used = true
+                    this.toolbox.step++
                     this.$bus.$emit('editor_continueDialog', {
                         stage: 1,
                         step: 5,
@@ -469,6 +622,9 @@ export default {
                     ? this.canvasSize.index + 1
                     : 0
         },
+        /**
+         * Check whether objects colided.
+         */
         haveIntersection(r1, r2) {
             return !(
                 r2.x > r1.x + r1.width ||
@@ -487,6 +643,7 @@ export default {
     border: 1px solid black;
     margin: 0 auto;
     overflow: hidden;
+    background: no-repeat center;
 }
 .full-size {
     width: 100%;
@@ -500,7 +657,84 @@ export default {
     width: 60%;
     height: 60vh;
 }
+.table {
+    background: url('/imgs/background_table.png') no-repeat center -30px;
+    background-clip: border-box;
+    background-size: cover;
+    width: 100%;
+    height: 100%;
+    padding: 3em 3em;
+}
+.toolbox-wrapper {
+    padding: 0px 1.5em 0 0;
+    text-align: center;
+}
+.button-box {
+    background: url('/imgs/background_tool.png') no-repeat 0 0;
+    border: none;
+    width: 150px;
+    height: 238px;
+    outline: none;
+    display: inline-block;
+    margin-right: -23px;
+    position: relative;
+    padding-top: 195px;
+    color: white;
+}
+.button-box-right {
+    background: url('/imgs/background_tool-right.png') no-repeat 0 0;
+}
 .higlighted {
-    background: red;
+    background-position-x: -150px;
+}
+.cutting-knife::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 100px;
+    background: url('/imgs/tools.png') no-repeat 0 -100px;
+}
+.scrapping-knife::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 100px;
+    background: url('/imgs/tools.png') no-repeat 0 0;
+}
+.powder::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 100px;
+    background: url('/imgs/tools.png') no-repeat 0 -200px;
+}
+.ruler::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 120px;
+    background: url('/imgs/tools.png') no-repeat 0 -300px;
+}
+.ink::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 100px;
+    background: url('/imgs/tools.png') no-repeat 0 -400px;
 }
 </style>

@@ -2,6 +2,7 @@
     "site_title": "The Creative Scriptorium",
     "site_description": "Would you like to find out how were books written in olden days?",
     "site_start_button": "Uncover  mysteries and secrets.",
+    "button_continue": "Continue",
     "guide_messages": {
         "stage_1_1": "In the past, people wrote all books by hand on animal skin. These were called <b>manuscripts</b>. Let’s make our own!",
         "stage_1_2": "We begin by preparing the page. Here is the entire skin stretched in front of you. Let’s scrape it a bit. Take the round knife and scrape all the dots out!",
@@ -9,13 +10,17 @@
         "stage_1_4": "What do you think is the best shape?",
         "stage_1_5": "It’s time to sprinkle some powder. This will make the ink stick to the page.",
         "stage_1_6": "Lines will help us keep the letters straight. Connect the dots to make lines.",
-        "stage_1_7": "Your page is ready for writing! Here are some tools you can use: dip the feather in ink to write, if you make a mistake, use a knife (pen-knife!) like a rubber to erase it"
+        "stage_1_7": "Your page is ready for writing! Here are some tools you can use: dip the feather in ink to write, if you make a mistake, use a knife (pen-knife!) like a rubber to erase it.",
+        "stage_1_8": "Well done! Your manuscript looks amazing! You’ve just won a star.",
+        "stage_1_9": "Wow, this was hard work. Remember how you took the knife to erase words? In the olden days, people did that to entire books! Let’s try!",
+        "stage_2_1": "Woah! This was fun. Are there books at home you would like to erase? Bad news: knives only work on animal skin.",
+        "stage_2_2": "Are you ready to write again? Have fun!"
     },
     "tools": {
         "scrapping_knife": "Scrapping knife",
         "cutting_knife": "Cutting knife",
         "ink": "Ink",
-        "add_lines": "Add lines",
+        "add_lines": "Ruler tool",
         "powder": "Powder"
     }
 }
