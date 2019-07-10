@@ -3,7 +3,7 @@
         <guide-bubble>
             <p
                 v-html="
-                    $t('guide_messages.stage_' + guide.stage + '_' + guide.step)
+                    $t('guide_messages.stage_' + guideStage + '_' + guideStep)
                 "
             />
             <nuxt-link
@@ -20,7 +20,7 @@
 
 <script>
 import { setTimeout, clearTimeout } from 'timers'
-import { mapState } from 'vuex'
+import { mapMutations } from 'vuex'
 import KonvaCanvas from '~/components/Canvas.vue'
 import GuideBubble from '~/components/Bubble.vue'
 
@@ -32,8 +32,6 @@ export default {
     data() {
         return {
             guide: {
-                stage: 1,
-                step: 1,
                 enable_continue: false,
                 timeout: null,
                 timeoutTime: 10000
@@ -41,14 +39,16 @@ export default {
         }
     },
     computed: {
-        ...mapState({
-            step: (state) => state.step,
-            stage: (state) => state.stage
-        })
+        guideStep() {
+            return this.$store.state.guide.step
+        },
+        guideStage() {
+            return this.$store.state.guide.stage
+        }
     },
     created() {
         this.timeout = setTimeout(() => {
-            this.guide.step = 2
+            this.updateStep(2)
             this.$bus.$emit('editor_higlightTool', 'scrappingKnife')
         }, 3000)
 
@@ -57,14 +57,18 @@ export default {
         })
     },
     methods: {
+        ...mapMutations({
+            updateStep: 'guide/updateStep',
+            updateStage: 'guide/updateStage'
+        }),
         continueGuideDialog(data) {
             clearTimeout(this.timeout)
             const timeout = data.timeout !== undefined ? data.timeout : 3000
 
             if (!data.disableTimeout) {
                 this.timeout = setTimeout(() => {
-                    this.guide.step = data.step
-                    this.guide.stage = data.stage
+                    this.updateStep(data.step)
+                    this.updateStage(data.stage)
 
                     if (data.highlightTool !== undefined) {
                         this.$bus.$emit(
@@ -74,8 +78,8 @@ export default {
                     }
                 }, timeout)
             } else {
-                this.guide.step = data.step
-                this.guide.stage = data.stage
+                this.updateStep(data.step)
+                this.updateStage(data.stage)
 
                 if (data.highlightTool !== undefined) {
                     this.$bus.$emit('editor_higlightTool', data.highlightTool)

@@ -318,6 +318,15 @@ export default {
                 return
             }
 
+            if (!this.toolbox.ink.used) {
+                this.toolbox.ink.used = true
+                this.$bus.$emit('editor_continueDialog', {
+                    stage: 1,
+                    step: 8
+                })
+                this.toolbox.step++
+            }
+
             this.canDraw = true
             this.toolbox.ink.highlighted = false
             this.toolbox.ink.used = true
