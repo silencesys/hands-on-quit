@@ -30,7 +30,11 @@ export default {
     /*
      ** Plugins to load before mounting the App
      */
-    plugins: ['~/plugins/Konva.js', '~/plugins/i18n.js'],
+    plugins: [
+        '~/plugins/Konva.js',
+        '~/plugins/i18n.js',
+        '~/plugins/eventBus.js'
+    ],
     /*
      ** Nuxt.js modules
      */

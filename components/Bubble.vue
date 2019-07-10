@@ -17,6 +17,7 @@ export default {}
 .guide-wrapper {
     display: block;
     width: 100%;
+    margin-bottom: 2em;
 }
 .guide-comment {
     display: grid;

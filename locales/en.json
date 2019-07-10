@@ -1,3 +1,9 @@
 {
-    "site_title": "placeholder_site_title"
+    "site_title": "The Creative Scriptorium",
+    "site_description": "Would you like to find out how were books written in olden days?",
+    "site_start_button": "Uncover  mysteries and secrets.",
+    "guide_messages": {
+        "stage_1_1": "In the past, people wrote all books by hand on animal skin. These were called <b>manuscripts</b>. Let’s make our own!",
+        "stage_1_2": "We begin by preparing the page. Here is the entire skin stretched in front of you. Let’s scrape it a bit. Take the round knife and scrape all the dots out!"
+    }
 }

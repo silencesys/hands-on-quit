@@ -1,8 +1,14 @@
 <template>
     <div>
+        <button
+            @click="eraseContent"
+            :class="{ higlighted: highlighted.knife }"
+        >
+            Scrapping knife
+        </button>
+        <button @click="powderContent">Powder</button>
+        <button @click="addLiningDots">Add lines</button>
         <button @click="drawWithInk">Ink</button>
-        <button @click="eraseContent">Eraser</button>
-        <button @click="addLiningDots">Add dots</button>
 
         <div id="konva-container" ref="container">
             <v-stage
@@ -15,7 +21,9 @@
                 @mousedown="handleMouseDown"
                 @touchstart="handleMouseDown"
             >
-                <v-layer ref="background">
+                <v-layer ref="background"></v-layer>
+                <v-layer ref="manuscript"></v-layer>
+                <v-layer ref="grid">
                     <v-circle
                         :config="circle"
                         v-for="(circle, index) in circles"
@@ -31,7 +39,6 @@
                         class="grid-line"
                     />
                 </v-layer>
-                <v-layer ref="manuscript"></v-layer>
                 <v-layer ref="palimpsest"></v-layer>
             </v-stage>
         </div>
@@ -52,6 +59,7 @@ export default {
             circles: [],
             lines: [],
             isDrawing: false,
+            canDrawing: false,
             lastPointerPosition: { x: 0, y: 0 },
             brushConfig: {
                 color: '#55DD33',
@@ -65,6 +73,9 @@ export default {
             layerConfig: {
                 position: 1,
                 name: 'background'
+            },
+            highlighted: {
+                knife: false
             }
         }
     },
@@ -88,10 +99,18 @@ export default {
 
         this.fitStageToContainer()
         window.addEventListener('resize', this.fitStageToContainer)
+        this.$bus.$on('editor_higlightTool', (eventData) => {
+            this.highlight(eventData)
+        })
     },
     methods: {
+        highlight(eventData) {
+            this.highlighted[eventData] = true
+        },
         handleMouseDown(e) {
-            // this.isDrawing = true
+            if (this.canDrawing === true) {
+                this.isDrawing = true
+            }
             this.lastPointerPosition = stage.getPointerPosition()
         },
         fitStageToContainer() {
@@ -140,27 +159,31 @@ export default {
         handleMouseUp(e) {
             this.isDrawing = false
         },
-        pickLayer() {
-            let canvas = document.querySelectorAll('canvas')
-            canvas = canvas[2]
-            context = canvas.getContext('2d')
-        },
         drawWithInk() {
-            this.isDrawing = true
+            this.canDrawing = true
             this.brushConfig = {
                 color: 'RGBA(0, 0, 0, .8)',
                 size: 5
             }
         },
         eraseContent() {
-            this.isDrawing = true
+            this.canDrawing = true
+            this.highlighted.knife = false
+
             this.brushConfig = {
-                color: 'RGBA(255, 255, 255, 0.1)',
+                color: 'RGBA(217, 170, 98, 0.1)',
                 size: 50
             }
         },
+        powderContent() {
+            this.canDrawing = true
+            this.brushConfig = {
+                color: 'RGBA(240, 194, 125, 0.1)',
+                size: 100
+            }
+        },
         addLiningDots() {
-            this.isDrawing = false
+            this.canDrawing = false
             const container = this.$refs.container
 
             this.circles = [
@@ -261,7 +284,7 @@ export default {
                         this.circles[1].y
                     ],
                     stroke: 'black',
-                    strokeWidth: 3,
+                    strokeWidth: 1,
                     circleIndex: 1
                 },
                 {
@@ -272,7 +295,7 @@ export default {
                         this.circles[4].y
                     ],
                     stroke: 'black',
-                    strokeWidth: 3,
+                    strokeWidth: 1,
                     circleIndex: 4
                 },
                 {
@@ -283,7 +306,7 @@ export default {
                         this.circles[7].y
                     ],
                     stroke: 'black',
-                    strokeWidth: 3,
+                    strokeWidth: 1,
                     circleIndex: 7
                 }
             ]
@@ -305,7 +328,7 @@ export default {
             const target = e.target
             const targetRect = e.target.getClientRect()
 
-            this.$refs.background.getNode().children.each((group) => {
+            this.$refs.grid.getNode().children.each((group) => {
                 if (group === target) {
                     return
                 }
@@ -318,8 +341,11 @@ export default {
             })
 
             this.layers.background.draw()
-            this.layers.manuscript.draw()
             this.layers.palimpsest.draw()
+
+            let canvas = document.querySelectorAll('canvas')
+            canvas = canvas[3]
+            context = canvas.getContext('2d')
         },
         haveIntersection(r1, r2) {
             return !(
@@ -338,5 +364,8 @@ export default {
     width: 100%;
     height: 500px;
     box-sizing: border-box;
+}
+.higlighted {
+    background: red;
 }
 </style>

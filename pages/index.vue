@@ -2,7 +2,10 @@
     <div class="container">
         <header>
             <h1>{{ $t('site_title') }}</h1>
-            <nuxt-link :to="{ name: 'editor' }">Continue</nuxt-link>
+            <p>{{ $t('site_description') }}</p>
+            <nuxt-link :to="{ name: 'editor' }">
+                {{ $t('site_start_button') }}
+            </nuxt-link>
         </header>
     </div>
 </template>

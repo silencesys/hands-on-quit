@@ -17,7 +17,7 @@ html {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    background: #cb9c53;
+    background: #362a2c;
 }
 
 *,
@@ -28,7 +28,11 @@ html {
 }
 
 .content-wrapper {
-    margin: 2rem;
+    max-width: 800px;
+    margin: 2em auto;
+    padding: 2em;
+    background: #cb9c53;
+    border-radius: 0.5em;
 }
 
 .button--green {
