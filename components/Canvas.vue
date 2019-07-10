@@ -8,19 +8,19 @@
         </button>
         <button
             @click="resizeCanvas"
-            :class="{ higlighted: toolbox.knife.highlighted }"
+            :class="{ higlighted: toolbox.cuttingKnife.highlighted }"
         >
             {{ $t('tools.cutting_knife') }}
         </button>
         <button
             @click="powderContent"
-            :class="{ higlighted: toolbox.knife.highlighted }"
+            :class="{ higlighted: toolbox.powder.highlighted }"
         >
             {{ $t('tools.powder') }}
         </button>
         <button
             @click="addLiningDots"
-            :class="{ higlighted: toolbox.knife.highlighted }"
+            :class="{ higlighted: toolbox.lines.highlighted }"
         >
             {{ $t('tools.add_lines') }}
         </button>
@@ -103,21 +103,34 @@ export default {
                 classes: ['full-size', 'medium-size', 'small-size'],
                 index: 0
             },
+            timeout: null,
             toolbox: {
                 scrappingKnife: {
                     highlighted: false,
-                    used: false
+                    used: false,
+                    enabled: false
                 },
-                knife: {
-                    highlighted: false
+                cuttingKnife: {
+                    highlighted: false,
+                    used: false,
+                    enabled: false
                 },
-                cuttingKnife: false,
-                powder: false,
+                powder: {
+                    highlighted: false,
+                    used: false,
+                    enabled: false
+                },
+                lines: {
+                    highlighted: false,
+                    used: false,
+                    connected: 0,
+                    enabled: false
+                },
                 ink: {
                     highlighted: false,
-                    used: false
-                },
-                lines: false
+                    used: false,
+                    enabled: false
+                }
             }
         }
     },
@@ -215,7 +228,15 @@ export default {
         eraseContent() {
             this.canDraw = true
             this.toolbox.scrappingKnife.highlighted = false
-            this.toolbox.scrappingKnife.used = true
+
+            if (!this.toolbox.scrappingKnife.used) {
+                this.toolbox.scrappingKnife.used = true
+                this.$bus.$emit('editor_continueDialog', {
+                    stage: 1,
+                    step: 3,
+                    highlightTool: 'cuttingKnife'
+                })
+            }
 
             this.brushConfig = {
                 color: 'RGBA(217, 170, 98, 0.1)',
@@ -224,6 +245,17 @@ export default {
         },
         powderContent() {
             this.canDraw = true
+            this.toolbox.powder.highlighted = false
+
+            if (!this.toolbox.powder.used) {
+                this.toolbox.powder.used = true
+                this.$bus.$emit('editor_continueDialog', {
+                    stage: 1,
+                    step: 6,
+                    highlightTool: 'lines'
+                })
+            }
+
             this.brushConfig = {
                 color: 'RGBA(240, 194, 125, 0.1)',
                 size: 100
@@ -231,7 +263,12 @@ export default {
         },
         addLiningDots() {
             this.canDraw = false
+            this.toolbox.lines.highlighted = false
             const container = this.$refs.container
+
+            if (!this.toolbox.lines.used) {
+                this.toolbox.lines.used = true
+            }
 
             this.circles = [
                 {
@@ -382,6 +419,17 @@ export default {
                 if (this.haveIntersection(group.getClientRect(), targetRect)) {
                     if (group.getX() > 10) {
                         target.draggable(false)
+                        this.toolbox.lines.connected++
+
+                        if (this.toolbox.lines.connected === 3) {
+                            this.toolbox.lines.enabled = false
+
+                            this.$bus.$emit('editor_continueDialog', {
+                                stage: 1,
+                                step: 7,
+                                highlightTool: 'ink'
+                            })
+                        }
                     }
                     group.fill('red')
                 }
@@ -395,6 +443,27 @@ export default {
             context = canvas.getContext('2d')
         },
         resizeCanvas() {
+            this.toolbox.cuttingKnife.highlighted = false
+            clearTimeout(this.timeout)
+
+            if (!this.toolbox.cuttingKnife.used) {
+                this.$bus.$emit('editor_continueDialog', {
+                    stage: 1,
+                    step: 4,
+                    disableTimeout: true
+                })
+
+                this.timeout = setTimeout(() => {
+                    this.toolbox.cuttingKnife.used = true
+                    this.$bus.$emit('editor_continueDialog', {
+                        stage: 1,
+                        step: 5,
+                        highlightTool: 'powder',
+                        disableTimeout: true
+                    })
+                }, 3000)
+            }
+
             this.canvasSize.index =
                 this.canvasSize.index < this.canvasSize.classes.length - 1
                     ? this.canvasSize.index + 1

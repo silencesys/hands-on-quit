@@ -4,7 +4,12 @@
     "site_start_button": "Uncover  mysteries and secrets.",
     "guide_messages": {
         "stage_1_1": "In the past, people wrote all books by hand on animal skin. These were called <b>manuscripts</b>. Let’s make our own!",
-        "stage_1_2": "We begin by preparing the page. Here is the entire skin stretched in front of you. Let’s scrape it a bit. Take the round knife and scrape all the dots out!"
+        "stage_1_2": "We begin by preparing the page. Here is the entire skin stretched in front of you. Let’s scrape it a bit. Take the round knife and scrape all the dots out!",
+        "stage_1_3": "Now, take a sharp straight knife, and cut the page as big as you like!",
+        "stage_1_4": "What do you think is the best shape?",
+        "stage_1_5": "It’s time to sprinkle some powder. This will make the ink stick to the page.",
+        "stage_1_6": "Lines will help us keep the letters straight. Connect the dots to make lines.",
+        "stage_1_7": "Your page is ready for writing! Here are some tools you can use: dip the feather in ink to write, if you make a mistake, use a knife (pen-knife!) like a rubber to erase it"
     },
     "tools": {
         "scrapping_knife": "Scrapping knife",

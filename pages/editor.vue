@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { setTimeout } from 'timers'
+import { setTimeout, clearTimeout } from 'timers'
 import KonvaCanvas from '~/components/Canvas.vue'
 import GuideBubble from '~/components/Bubble.vue'
 
@@ -22,7 +22,36 @@ export default {
         return {
             guide: {
                 stage: 1,
-                step: 1
+                step: 1,
+                timeout: null,
+                timeoutTime: 10000
+            }
+        }
+    },
+    methods: {
+        continueGuideDialog(data) {
+            clearTimeout(this.timeout)
+            const timeout = data.timeout !== undefined ? data.timeout : 3000
+
+            if (!data.disableTimeout) {
+                this.timeout = setTimeout(() => {
+                    this.guide.step = data.step
+                    this.guide.stage = data.stage
+
+                    if (data.highlightTool !== undefined) {
+                        this.$bus.$emit(
+                            'editor_higlightTool',
+                            data.highlightTool
+                        )
+                    }
+                }, timeout)
+            } else {
+                this.guide.step = data.step
+                this.guide.stage = data.stage
+
+                if (data.highlightTool !== undefined) {
+                    this.$bus.$emit('editor_higlightTool', data.highlightTool)
+                }
             }
         }
     },
@@ -31,10 +60,14 @@ export default {
         GuideBubble
     },
     created() {
-        setTimeout(() => {
+        this.timeout = setTimeout(() => {
             this.guide.step = 2
             this.$bus.$emit('editor_higlightTool', 'scrappingKnife')
-        }, 5000)
+        }, 3000)
+
+        this.$bus.$on('editor_continueDialog', (eventData) => {
+            this.continueGuideDialog(eventData)
+        })
     }
 }
 </script>
