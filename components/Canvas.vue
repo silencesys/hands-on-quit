@@ -2,15 +2,40 @@
     <div>
         <button
             @click="eraseContent"
-            :class="{ higlighted: highlighted.knife }"
+            :class="{ higlighted: toolbox.scrappingKnife.highlighted }"
         >
-            Scrapping knife
+            {{ $t('tools.scrapping_knife') }}
         </button>
-        <button @click="powderContent">Powder</button>
-        <button @click="addLiningDots">Add lines</button>
-        <button @click="drawWithInk">Ink</button>
+        <button
+            @click="resizeCanvas"
+            :class="{ higlighted: toolbox.knife.highlighted }"
+        >
+            {{ $t('tools.cutting_knife') }}
+        </button>
+        <button
+            @click="powderContent"
+            :class="{ higlighted: toolbox.knife.highlighted }"
+        >
+            {{ $t('tools.powder') }}
+        </button>
+        <button
+            @click="addLiningDots"
+            :class="{ higlighted: toolbox.knife.highlighted }"
+        >
+            {{ $t('tools.add_lines') }}
+        </button>
+        <button
+            @click="drawWithInk"
+            :class="[{ higlighted: toolbox.ink.highlighted }, 'button-ink']"
+        >
+            {{ $t('tools.ink') }}
+        </button>
 
-        <div id="konva-container" ref="container">
+        <div
+            id="konva-container"
+            :class="canvasSize.classes[canvasSize.index]"
+            ref="container"
+        >
             <v-stage
                 ref="stage"
                 :config="stageSize"
@@ -59,7 +84,7 @@ export default {
             circles: [],
             lines: [],
             isDrawing: false,
-            canDrawing: false,
+            canDraw: false,
             lastPointerPosition: { x: 0, y: 0 },
             brushConfig: {
                 color: '#55DD33',
@@ -68,20 +93,37 @@ export default {
             layers: {
                 background: null,
                 manuscript: null,
-                palimpsest: null
+                palimpsest: null,
+                config: {
+                    position: 1,
+                    name: 'background'
+                }
             },
-            layerConfig: {
-                position: 1,
-                name: 'background'
+            canvasSize: {
+                classes: ['full-size', 'medium-size', 'small-size'],
+                index: 0
             },
-            highlighted: {
-                knife: false
+            toolbox: {
+                scrappingKnife: {
+                    highlighted: false,
+                    used: false
+                },
+                knife: {
+                    highlighted: false
+                },
+                cuttingKnife: false,
+                powder: false,
+                ink: {
+                    highlighted: false,
+                    used: false
+                },
+                lines: false
             }
         }
     },
     computed: {
         currentLayer() {
-            return this.layerConfig.name
+            return this.layers.config.name
         }
     },
     mounted() {
@@ -98,6 +140,7 @@ export default {
         context = canvas.getContext('2d')
 
         this.fitStageToContainer()
+
         window.addEventListener('resize', this.fitStageToContainer)
         this.$bus.$on('editor_higlightTool', (eventData) => {
             this.highlight(eventData)
@@ -105,10 +148,10 @@ export default {
     },
     methods: {
         highlight(eventData) {
-            this.highlighted[eventData] = true
+            this.toolbox[eventData].highlighted = true
         },
         handleMouseDown(e) {
-            if (this.canDrawing === true) {
+            if (this.canDraw === true) {
                 this.isDrawing = true
             }
             this.lastPointerPosition = stage.getPointerPosition()
@@ -160,15 +203,19 @@ export default {
             this.isDrawing = false
         },
         drawWithInk() {
-            this.canDrawing = true
+            this.canDraw = true
+            this.toolbox.ink.highlighted = false
+            this.toolbox.ink.used = true
+
             this.brushConfig = {
                 color: 'RGBA(0, 0, 0, .8)',
                 size: 5
             }
         },
         eraseContent() {
-            this.canDrawing = true
-            this.highlighted.knife = false
+            this.canDraw = true
+            this.toolbox.scrappingKnife.highlighted = false
+            this.toolbox.scrappingKnife.used = true
 
             this.brushConfig = {
                 color: 'RGBA(217, 170, 98, 0.1)',
@@ -176,14 +223,14 @@ export default {
             }
         },
         powderContent() {
-            this.canDrawing = true
+            this.canDraw = true
             this.brushConfig = {
                 color: 'RGBA(240, 194, 125, 0.1)',
                 size: 100
             }
         },
         addLiningDots() {
-            this.canDrawing = false
+            this.canDraw = false
             const container = this.$refs.container
 
             this.circles = [
@@ -347,6 +394,12 @@ export default {
             canvas = canvas[3]
             context = canvas.getContext('2d')
         },
+        resizeCanvas() {
+            this.canvasSize.index =
+                this.canvasSize.index < this.canvasSize.classes.length - 1
+                    ? this.canvasSize.index + 1
+                    : 0
+        },
         haveIntersection(r1, r2) {
             return !(
                 r2.x > r1.x + r1.width ||
@@ -361,9 +414,22 @@ export default {
 
 <style>
 #konva-container {
+    box-sizing: border-box;
+    border: 1px solid black;
+    margin: 0 auto;
+    overflow: hidden;
+}
+.full-size {
     width: 100%;
     height: 60vh;
-    box-sizing: border-box;
+}
+.medium-size {
+    width: 80%;
+    height: 60vh;
+}
+.small-size {
+    width: 60%;
+    height: 60vh;
 }
 .higlighted {
     background: red;

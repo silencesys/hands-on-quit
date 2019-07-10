@@ -33,8 +33,8 @@ export default {
     created() {
         setTimeout(() => {
             this.guide.step = 2
-            this.$bus.$emit('editor_higlightTool', 'knife')
-        }, 7000)
+            this.$bus.$emit('editor_higlightTool', 'scrappingKnife')
+        }, 5000)
     }
 }
 </script>

@@ -5,5 +5,12 @@
     "guide_messages": {
         "stage_1_1": "In the past, people wrote all books by hand on animal skin. These were called <b>manuscripts</b>. Let’s make our own!",
         "stage_1_2": "We begin by preparing the page. Here is the entire skin stretched in front of you. Let’s scrape it a bit. Take the round knife and scrape all the dots out!"
+    },
+    "tools": {
+        "scrapping_knife": "Scrapping knife",
+        "cutting_knife": "Cutting knife",
+        "ink": "Ink",
+        "add_lines": "Add lines",
+        "powder": "Powder"
     }
 }
