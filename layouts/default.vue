@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="content-wrapper">
         <nuxt />
     </div>
 </template>
@@ -15,6 +15,9 @@ html {
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    background: #cb9c53;
 }
 
 *,
@@ -22,6 +25,10 @@ html {
 *:after {
     box-sizing: border-box;
     margin: 0;
+}
+
+.content-wrapper {
+    margin: 2rem;
 }
 
 .button--green {
