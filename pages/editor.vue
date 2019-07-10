@@ -42,7 +42,8 @@ export default {
 <style>
 .container {
     margin: 0 auto;
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
 }

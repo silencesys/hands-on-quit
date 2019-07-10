@@ -362,7 +362,7 @@ export default {
 <style>
 #konva-container {
     width: 100%;
-    height: 500px;
+    height: 60vh;
     box-sizing: border-box;
 }
 .higlighted {

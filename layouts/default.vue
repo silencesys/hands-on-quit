@@ -29,6 +29,8 @@ html {
 
 .content-wrapper {
     max-width: 800px;
+    height: 90vh;
+    overflow: hidden;
     margin: 2em auto;
     padding: 2em;
     background: #cb9c53;
