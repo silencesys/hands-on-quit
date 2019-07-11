@@ -6,7 +6,8 @@
                 :class="[
                     { higlighted: toolbox.scrappingKnife.highlighted },
                     'button-box',
-                    'scrapping-knife'
+                    'scrapping-knife',
+                    { 'active-tool': toolbox.activeTool === 'scrappingKnife' }
                 ]"
             >
                 {{ $t('tools.scrapping_knife') }}
@@ -26,7 +27,8 @@
                 :class="[
                     { higlighted: toolbox.powder.highlighted },
                     'button-box',
-                    'powder'
+                    'powder',
+                    { 'active-tool': toolbox.activeTool === 'powder' }
                 ]"
             >
                 {{ $t('tools.powder') }}
@@ -37,7 +39,8 @@
                     { higlighted: toolbox.lines.highlighted },
                     'button-box',
                     'button-box-right',
-                    'ruler'
+                    'ruler',
+                    { 'active-tool': toolbox.activeTool === 'lines' }
                 ]"
             >
                 {{ $t('tools.add_lines') }}
@@ -48,7 +51,8 @@
                     { higlighted: toolbox.ink.highlighted },
                     'button-box',
                     'button-box-right',
-                    'ink'
+                    'ink',
+                    { 'active-tool': toolbox.activeTool === 'ink' }
                 ]"
             >
                 {{ $t('tools.ink') }}
@@ -143,6 +147,7 @@ export default {
             timeout: null,
             toolbox: {
                 step: 0,
+                activeTool: null,
                 scrappingKnife: {
                     highlighted: false,
                     used: false,
@@ -331,6 +336,8 @@ export default {
                 return
             }
 
+            this.toolbox.activeTool = 'ink'
+
             if (!this.toolbox.ink.used && this.stage === 'manuscript') {
                 this.toolbox.ink.used = true
                 this.$bus.$emit('editor_continueDialog', {
@@ -367,6 +374,8 @@ export default {
             if (!this.toolbox.scrappingKnife.enabled) {
                 return
             }
+
+            this.toolbox.activeTool = 'scrappingKnife'
 
             this.canDraw = true
             this.toolbox.scrappingKnife.highlighted = false
@@ -409,6 +418,8 @@ export default {
                 return
             }
 
+            this.toolbox.activeTool = 'powder'
+
             this.canDraw = true
             this.toolbox.powder.highlighted = false
 
@@ -439,6 +450,8 @@ export default {
             if (!this.toolbox.lines.enabled) {
                 return
             }
+
+            this.toolbox.activeTool = 'lines'
 
             this.canDraw = false
             this.toolbox.lines.highlighted = false
@@ -783,5 +796,8 @@ export default {
     margin-left: 10px;
     top: 100px;
     background: url('/imgs/tools.png') no-repeat 0 -400px;
+}
+.active-tool {
+    background-position-x: -300px;
 }
 </style>
