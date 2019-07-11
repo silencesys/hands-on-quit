@@ -5,7 +5,7 @@
         </header>
 
         <p>{{ $t('site_description') }}</p>
-        <nuxt-link :to="{ name: 'editor' }">
+        <nuxt-link :to="{ name: 'editor' }" class="button">
             {{ $t('site_start_button') }}
         </nuxt-link>
     </div>
