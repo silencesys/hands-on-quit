@@ -19,6 +19,7 @@
                     { higlighted: toolbox.cuttingKnife.highlighted },
                     'button-box',
                     'cutting-knife',
+                    { 'active-tool': toolbox.activeTool === 'cuttingKnife' },
                     { 'tool-disabled': !toolbox.cuttingKnife.enabled }
                 ]"
             >

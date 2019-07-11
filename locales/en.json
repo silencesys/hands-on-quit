@@ -10,11 +10,11 @@
         "stage_1_6": "It’s time to cover the page with some powder. This will make the ink stick to the page.",
         "stage_1_8": "Lines will help us keep the letters straight. I made some dots for you,  connect them from left to right to make lines.",
         "stage_1_10": "Your page is ready for writing! Here are some tools you can use: dip the feather in ink to write, if you make a mistake, use the  knife like a rubber to erase it.",
-        "stage_1_11": "Well done! Your manuscript looks amazing! You’ve just won a star.",
-        "stage_1_12": "Wow, this was hard work. Remember how you took the knife to erase words? In the olden days, people did that to entire books! Let’s try!",
-        "stage_1_14": "Woah! This was fun. Are there books at home you would like to erase? Bad news: knives only work on animal skin, called <b>parchment</b>.",
-        "stage_1_15": "Are you ready to write again? Have fun!",
-        "stage_1_17": "Good job, you just created a <b>palimpsest</b>! Palimpsests are books that are erased and written again. Here is your second star!"
+        "stage_1_12": "Well done! Your manuscript looks amazing! You’ve just won a star.",
+        "stage_1_13": "Wow, this was hard work. Remember how you took the knife to erase words? In the olden days, people did that to entire books! Let’s try!",
+        "stage_1_15": "Woah! This was fun. Are there books at home you would like to erase? Bad news: knives only work on animal skin, called <b>parchment</b>.",
+        "stage_1_16": "Are you ready to write again? Have fun!",
+        "stage_1_18": "Good job, you just created a <b>palimpsest</b>! Palimpsests are books that are erased and written again. Here is your second star!"
     },
     "tools": {
         "scrapping_knife": "Scraping knife",

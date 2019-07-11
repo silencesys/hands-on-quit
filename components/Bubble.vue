@@ -26,9 +26,9 @@ export default {
                 7: 'highlightPowder',
                 9: 'highlightRuler',
                 11: 'highlightInk',
-                13: 'resetTheEditor',
-                16: 'hide_bubble',
-                18: 'disableBubble'
+                14: 'resetTheEditor',
+                17: 'hide_bubble',
+                19: 'disableBubble'
             },
             visible: true
         }
