@@ -7,7 +7,8 @@
                     { higlighted: toolbox.scrappingKnife.highlighted },
                     'button-box',
                     'scrapping-knife',
-                    { 'active-tool': toolbox.activeTool === 'scrappingKnife' }
+                    { 'active-tool': toolbox.activeTool === 'scrappingKnife' },
+                    { 'tool-disabled': !toolbox.scrappingKnife.enabled }
                 ]"
             >
                 {{ $t('tools.scrapping_knife') }}
@@ -17,7 +18,8 @@
                 :class="[
                     { higlighted: toolbox.cuttingKnife.highlighted },
                     'button-box',
-                    'cutting-knife'
+                    'cutting-knife',
+                    { 'tool-disabled': !toolbox.cuttingKnife.enabled }
                 ]"
             >
                 {{ $t('tools.cutting_knife') }}
@@ -28,7 +30,8 @@
                     { higlighted: toolbox.powder.highlighted },
                     'button-box',
                     'powder',
-                    { 'active-tool': toolbox.activeTool === 'powder' }
+                    { 'active-tool': toolbox.activeTool === 'powder' },
+                    { 'tool-disabled': !toolbox.powder.enabled }
                 ]"
             >
                 {{ $t('tools.powder') }}
@@ -40,7 +43,8 @@
                     'button-box',
                     'button-box-right',
                     'ruler',
-                    { 'active-tool': toolbox.activeTool === 'lines' }
+                    { 'active-tool': toolbox.activeTool === 'lines' },
+                    { 'tool-disabled': !toolbox.lines.enabled }
                 ]"
             >
                 {{ $t('tools.add_lines') }}
@@ -52,7 +56,8 @@
                     'button-box',
                     'button-box-right',
                     'ink',
-                    { 'active-tool': toolbox.activeTool === 'ink' }
+                    { 'active-tool': toolbox.activeTool === 'ink' },
+                    { 'tool-disabled': !toolbox.ink.enabled }
                 ]"
             >
                 {{ $t('tools.ink') }}
@@ -746,6 +751,9 @@ export default {
 }
 .higlighted {
     background-position-x: -150px;
+}
+.tool-disabled::before {
+    opacity: 0.2;
 }
 .cutting-knife::before {
     content: ' ';

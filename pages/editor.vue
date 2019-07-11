@@ -136,6 +136,7 @@ export default {
     color: #fff;
     padding: 0.5em;
     display: inline-block;
+    cursor: pointer;
 }
 .empty-margin {
     margin-top: 70px;
