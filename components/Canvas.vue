@@ -346,7 +346,7 @@ export default {
                 this.$bus.$emit('editor_continueDialog', {
                     stage: 2,
                     step: 3,
-                    timeout: 3000
+                    timeout: 7000
                 })
             }
 
