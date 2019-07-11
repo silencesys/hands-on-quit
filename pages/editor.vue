@@ -76,6 +76,7 @@ export default {
 }
 .button {
     background: #b04130;
+    font-size: 20px;
     border-radius: 8px;
     margin-top: 10px;
     color: #fff;

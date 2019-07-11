@@ -2,7 +2,8 @@ export const state = () => ({
     stage: 1,
     step: 1,
     enable_continue: false,
-    avatarUrl: '/imgs/avatar_mouse.png'
+    avatarUrl: '/imgs/avatar_mouse.png',
+    starCount: 0
 })
 
 export const mutations = {
@@ -17,5 +18,8 @@ export const mutations = {
     },
     setGuide(state, avatarUri) {
         state.avatarUrl = avatarUri
+    },
+    addStar(state) {
+        state.starCount++
     }
 }

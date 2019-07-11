@@ -1,5 +1,13 @@
 <template>
-    <div class="guide-content-wrapper" v-if="visible">
+    <div class="guide-content-wrapper star" v-if="visible">
+        <div class="star-wrapper" v-if="guideStep === 18 || guideStep === 12">
+            <img
+                src="/imgs/star.png"
+                class="star-image"
+                v-for="(star, index) in starCount"
+                :key="index"
+            />
+        </div>
         <div class="guide-wrapper">
             <div class="guide-comment">
                 <img :src="getAvatar" alt="guide_avatar" />
@@ -8,7 +16,7 @@
                 </div>
             </div>
             <button class="button" @click="continueGuide">
-                {{ $t('button_continue') }}
+                {{ continueText }}
             </button>
         </div>
     </div>
@@ -48,23 +56,38 @@ export default {
         guideStep() {
             return this.$store.state.guide.step
         },
+        starCount() {
+            return this.$store.state.guide.starCount
+        },
         guideStage() {
             return this.$store.state.guide.stage
         },
         getAvatar() {
             return this.$store.state.guide.avatarUrl
+        },
+        continueText() {
+            if (this.guideStep > 17) {
+                return this.$t('button_continue_freely')
+            }
+
+            return this.$t('button_continue')
         }
     },
     methods: {
         ...mapMutations({
             updateStep: 'guide/updateStep',
-            updateStage: 'guide/updateStage'
+            updateStage: 'guide/updateStage',
+            updateStarCount: 'guide/addStar'
         }),
         continueGuide() {
             this.showBubble()
             const step = this.guideStep + 1
             const callback =
                 this.events[step] !== undefined ? this.events[step] : undefined
+
+            if (step === 11 || step === 17) {
+                this.updateStarCount()
+            }
 
             if (callback !== undefined) {
                 this.fireEvent(callback)
@@ -121,5 +144,15 @@ img {
     padding: 2em;
     box-sizing: border-box;
     background: #d6c49f;
+}
+.star-wrapper {
+    text-align: center;
+    margin-top: -10vh;
+    margin-bottom: 5vh;
+    margin-left: -150px;
+}
+.star-image {
+    border: none;
+    margin-right: 50px;
 }
 </style>

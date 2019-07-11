@@ -99,4 +99,8 @@ header h1 {
 p {
     font-size: 22px;
 }
+a {
+    text-decoration: none;
+    font-size: 20px;
+}
 </style>
