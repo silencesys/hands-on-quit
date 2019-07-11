@@ -149,10 +149,13 @@ img {
     text-align: center;
     margin-top: -10vh;
     margin-bottom: 5vh;
-    margin-left: -150px;
+    max-width: 800px;
 }
 .star-image {
     border: none;
     margin-right: 50px;
+}
+.star-image:last-of-type {
+    margin-right: 0;
 }
 </style>
