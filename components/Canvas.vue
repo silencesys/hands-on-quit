@@ -247,7 +247,7 @@ export default {
         },
         unlockTools() {
             switch (this.guideStep) {
-                case 0:
+                case 2:
                     this.toolbox.lines.enabled = false
                     this.toolbox.scrappingKnife.enabled = true
                     this.toolbox.cuttingKnife.enabled = false
@@ -372,7 +372,7 @@ export default {
             if (this.canDraw && this.isDrawing && this.bubbleEnabled) {
                 this.timeout = setTimeout(() => {
                     this.$bus.$emit('continue_with_story')
-                }, 1500)
+                }, 4000)
             }
 
             this.isDrawing = false
@@ -386,25 +386,6 @@ export default {
             }
 
             this.toolbox.activeTool = 'ink'
-
-            if (!this.toolbox.ink.used && this.stage === 'manuscript') {
-                this.toolbox.ink.used = true
-                this.$bus.$emit('editor_continueDialog', {
-                    stage: 1,
-                    step: 8,
-                    timeout: 5000
-                })
-                this.toolbox.step++
-            }
-
-            if (!this.toolbox.ink.used && this.stage === 'palimpsest') {
-                this.toolbox.ink.used = true
-                this.$bus.$emit('editor_continueDialog', {
-                    stage: 2,
-                    step: 3,
-                    timeout: 7000
-                })
-            }
 
             this.canDraw = true
             this.toolbox.ink.highlighted = false
