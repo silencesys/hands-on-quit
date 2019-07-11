@@ -2,7 +2,7 @@
   "name": "hands-on-project",
   "version": "1.0.0",
   "description": "Amazing hackaton project",
-  "author": "Martin Rocek",
+  "author": "Charlie Barranu, Dominika Kecsoova, Svetlana Mullerova, Martin Rocek",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue --fix --ignore-path .gitignore .",
