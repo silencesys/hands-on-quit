@@ -106,6 +106,10 @@ export default {
         customBackground: {
             type: String,
             default: '/imgs/background_canvas.png'
+        },
+        stage: {
+            type: String,
+            default: 'manuscript'
         }
     },
     data() {
@@ -190,6 +194,15 @@ export default {
         context = canvas.getContext('2d')
 
         this.fitStageToContainer()
+
+        if (this.stage === 'palimpsest') {
+            this.toolbox.step = 4
+            this.toolbox.scrappingKnife.used = false
+            this.toolbox.cuttingKnife.used = true
+            this.toolbox.ink.used = false
+            this.toolbox.powder.used = true
+            this.toolbox.lines.used = true
+        }
 
         window.addEventListener('resize', this.fitStageToContainer)
         this.$bus.$on('editor_higlightTool', (eventData) => {
@@ -318,13 +331,23 @@ export default {
                 return
             }
 
-            if (!this.toolbox.ink.used) {
+            if (!this.toolbox.ink.used && this.stage === 'manuscript') {
                 this.toolbox.ink.used = true
                 this.$bus.$emit('editor_continueDialog', {
                     stage: 1,
-                    step: 8
+                    step: 8,
+                    timeout: 5000
                 })
                 this.toolbox.step++
+            }
+
+            if (!this.toolbox.ink.used && this.stage === 'palimpsest') {
+                this.toolbox.ink.used = true
+                this.$bus.$emit('editor_continueDialog', {
+                    stage: 2,
+                    step: 3,
+                    timeout: 3000
+                })
             }
 
             this.canDraw = true
@@ -348,7 +371,10 @@ export default {
             this.canDraw = true
             this.toolbox.scrappingKnife.highlighted = false
 
-            if (!this.toolbox.scrappingKnife.used) {
+            if (
+                !this.toolbox.scrappingKnife.used &&
+                this.stage === 'manuscript'
+            ) {
                 this.toolbox.scrappingKnife.used = true
                 this.$bus.$emit('editor_continueDialog', {
                     stage: 1,
@@ -356,6 +382,18 @@ export default {
                     highlightTool: 'cuttingKnife'
                 })
                 this.toolbox.step++
+            }
+
+            if (
+                !this.toolbox.scrappingKnife.used &&
+                this.stage === 'palimpsest'
+            ) {
+                this.toolbox.scrappingKnife.used = true
+                this.$bus.$emit('editor_continueDialog', {
+                    stage: 2,
+                    step: 1,
+                    timeout: 10000
+                })
             }
 
             this.brushConfig = {

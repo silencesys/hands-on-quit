@@ -14,7 +14,8 @@
         "stage_1_8": "Well done! Your manuscript looks amazing! You’ve just won a star.",
         "stage_1_9": "Wow, this was hard work. Remember how you took the knife to erase words? In the olden days, people did that to entire books! Let’s try!",
         "stage_2_1": "Woah! This was fun. Are there books at home you would like to erase? Bad news: knives only work on animal skin.",
-        "stage_2_2": "Are you ready to write again? Have fun!"
+        "stage_2_2": "Are you ready to write again? Have fun!",
+        "stage_2_3": "Good job, you just created a <b>palimpsest</b>! Palimpsests are books that are erased and written again. Here is your second star!"
     },
     "tools": {
         "scrapping_knife": "Scrapping knife",

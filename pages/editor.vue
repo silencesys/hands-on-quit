@@ -6,15 +6,28 @@
                     $t('guide_messages.stage_' + guideStage + '_' + guideStep)
                 "
             />
-            <nuxt-link
-                :to="{ name: 'intermezzo' }"
-                v-if="guide.enable_continue"
+            <p
+                @click="pushDialogByStep"
+                class="button"
+                v-if="guideStep === 8 || (guideStage === 2 && guideStep === 1)"
             >
-                {{ $t('continue') }}
-            </nuxt-link>
+                {{ $t('button_continue') }}
+            </p>
+            <p
+                v-if="guideStep === 9 && canvas.showContinueToEditor"
+                @click="changeEditor"
+                class="button"
+            >
+                {{ $t('button_continue') }}
+            </p>
         </guide-bubble>
         <div />
-        <konva-canvas />
+        <konva-canvas
+            :key="canvas.key"
+            :customBackground="canvas.background"
+            :stage="canvas.key"
+            class="empty-margin"
+        />
     </div>
 </template>
 
@@ -32,9 +45,13 @@ export default {
     data() {
         return {
             guide: {
-                enable_continue: false,
                 timeout: null,
                 timeoutTime: 10000
+            },
+            canvas: {
+                key: 'manuscript',
+                background: '/imgs/background_canvas.png',
+                showContinueToEditor: true
             }
         }
     },
@@ -61,6 +78,20 @@ export default {
             updateStep: 'guide/updateStep',
             updateStage: 'guide/updateStage'
         }),
+        changeEditor() {
+            this.canvas = {
+                key: 'palimpsest',
+                background: '/imgs/background_palimpsest.png',
+                showContinueToEditor: false
+            }
+        },
+        pushDialogByStep() {
+            this.continueGuideDialog({
+                step: this.guideStep + 1,
+                stage: this.guideStage,
+                disableTimeout: true
+            })
+        },
         continueGuideDialog(data) {
             clearTimeout(this.timeout)
             const timeout = data.timeout !== undefined ? data.timeout : 3000
@@ -97,5 +128,16 @@ export default {
     flex-direction: column;
     width: 100%;
     height: 100%;
+}
+.button {
+    background: #b04130;
+    border-radius: 8px;
+    margin-top: 10px;
+    color: #fff;
+    padding: 0.5em;
+    display: inline-block;
+}
+.empty-margin {
+    margin-top: 70px;
 }
 </style>

@@ -36,6 +36,7 @@ body {
     overflow: hidden;
     margin: 2em auto;
     border-radius: 0.5em;
+    position: relative;
 }
 
 .button--green {
