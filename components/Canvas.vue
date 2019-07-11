@@ -664,7 +664,7 @@ export default {
 
                 this.timeout = setTimeout(() => {
                     this.$bus.$emit('continue_with_story')
-                }, 1000)
+                }, 2000)
 
                 this.canvasSize.index =
                     this.canvasSize.index < this.canvasSize.classes.length - 1

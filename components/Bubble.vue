@@ -2,7 +2,7 @@
     <div class="guide-content-wrapper" v-if="visible">
         <div class="guide-wrapper">
             <div class="guide-comment">
-                <img src="/imgs/avatar.png" alt="guide_avatar" />
+                <img :src="getAvatar" alt="guide_avatar" />
                 <div class="comment">
                     <slot />
                 </div>
@@ -50,6 +50,9 @@ export default {
         },
         guideStage() {
             return this.$store.state.guide.stage
+        },
+        getAvatar() {
+            return this.$store.state.guide.avatarUrl
         }
     },
     methods: {

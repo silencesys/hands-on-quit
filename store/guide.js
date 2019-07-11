@@ -1,7 +1,8 @@
 export const state = () => ({
     stage: 1,
     step: 1,
-    enable_continue: false
+    enable_continue: false,
+    avatarUrl: '/imgs/avatar_mouse.png'
 })
 
 export const mutations = {
@@ -13,5 +14,8 @@ export const mutations = {
     },
     enableContinue(state, enable) {
         state.enableContinue = enable
+    },
+    setGuide(state, avatarUri) {
+        state.avatarUrl = avatarUri
     }
 }

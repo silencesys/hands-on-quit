@@ -2,6 +2,7 @@
     "site_title": "The Creative Scriptorium",
     "site_description": "Would you like to find out how were books written in olden days?",
     "site_start_button": "Uncover  mysteries and secrets.",
+    "site_pick_guide": "Choose your guide!",
     "button_continue": "Continue",
     "guide_messages": {
         "stage_1_1": "Hundreds of years ago, people wrote all books by hand on animal skin. These were called <b>manuscripts</b>. Let’s make our own!",
@@ -15,6 +16,11 @@
         "stage_1_15": "Woah! This was fun. Are there books at home you would like to erase? Bad news: knives only work on animal skin, called <b>parchment</b>.",
         "stage_1_16": "Are you ready to write again? Have fun!",
         "stage_1_18": "Good job, you just created a <b>palimpsest</b>! Palimpsests are books that are erased and written again. Here is your second star!"
+    },
+    "guide": {
+        "mouse": "Hi, I ́m Edgard the mouse and I live in a library.",
+        "dragon": "Nice to meet you,  I ́m Edmund and I ́m a dragon living in a castle.",
+        "rabbit": "Hello, my name is Edwina and I ́m a rabbit knight."
     },
     "tools": {
         "scrapping_knife": "Scraping knife",
