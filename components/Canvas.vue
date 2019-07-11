@@ -149,6 +149,7 @@ export default {
                 classes: ['full-size', 'medium-size', 'small-size'],
                 index: 0
             },
+            bubbleEnabled: true,
             timeout: null,
             toolbox: {
                 step: 0,
@@ -188,6 +189,9 @@ export default {
     computed: {
         currentLayer() {
             return this.layers.config.name
+        },
+        guideStep() {
+            return this.$store.state.guide.step
         }
     },
     mounted() {
@@ -215,13 +219,34 @@ export default {
         }
 
         window.addEventListener('resize', this.fitStageToContainer)
-        this.$bus.$on('editor_higlightTool', (eventData) => {
-            this.highlight(eventData)
+
+        // Event listeners
+        this.$bus.$on('highlightScrappingKnife', () => {
+            this.highlight('scrappingKnife')
+        })
+        this.$bus.$on('highlightCroppingKnife', () => {
+            this.highlight('cuttingKnife')
+        })
+        this.$bus.$on('highlightPowder', () => {
+            this.highlight('powder')
+        })
+        this.$bus.$on('highlightRuler', () => {
+            this.highlight('lines')
+        })
+        this.$bus.$on('highlightInk', () => {
+            this.highlight('ink')
+        })
+        this.$bus.$on('disableBubble', () => {
+            this.disableBubble()
         })
     },
     methods: {
+        disableBubble() {
+            this.bubbleEnabled = false
+            this.$bus.$emit('hide_bubble')
+        },
         unlockTools() {
-            switch (this.toolbox.step) {
+            switch (this.guideStep) {
                 case 0:
                     this.toolbox.lines.enabled = false
                     this.toolbox.scrappingKnife.enabled = true
@@ -229,28 +254,35 @@ export default {
                     this.toolbox.powder.enabled = false
                     this.toolbox.ink.enabled = false
                     break
-                case 1:
+                case 4:
                     this.toolbox.lines.enabled = false
-                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.scrappingKnife.enabled = false
                     this.toolbox.cuttingKnife.enabled = true
                     this.toolbox.powder.enabled = false
                     this.toolbox.ink.enabled = false
                     break
-                case 2:
+                case 6:
                     this.toolbox.lines.enabled = false
-                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.scrappingKnife.enabled = false
                     this.toolbox.cuttingKnife.enabled = false
                     this.toolbox.powder.enabled = true
                     this.toolbox.ink.enabled = false
                     break
-                case 3:
+                case 8:
                     this.toolbox.lines.enabled = true
-                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.scrappingKnife.enabled = false
                     this.toolbox.cuttingKnife.enabled = false
                     this.toolbox.powder.enabled = false
                     this.toolbox.ink.enabled = false
                     break
-                case 4:
+                case 10:
+                    this.toolbox.lines.enabled = false
+                    this.toolbox.scrappingKnife.enabled = true
+                    this.toolbox.cuttingKnife.enabled = false
+                    this.toolbox.powder.enabled = false
+                    this.toolbox.ink.enabled = true
+                    break
+                default:
                     this.toolbox.lines.enabled = false
                     this.toolbox.scrappingKnife.enabled = true
                     this.toolbox.cuttingKnife.enabled = false
@@ -263,6 +295,10 @@ export default {
          */
         highlight(toolName) {
             this.toolbox[toolName].highlighted = true
+            this.toolbox.activeTool = null
+            this.canDraw = false
+            this.$bus.$emit('hide_bubble')
+            this.unlockTools()
         },
         /**
          * Canvas, handle mouse down event, if user can draw, this will
@@ -301,6 +337,8 @@ export default {
                 return
             }
 
+            clearTimeout(this.timeout)
+
             context.globalCompositeOperation = 'source-over'
             context.strokeStyle = this.brushConfig.color
             context.lineWidth = this.brushConfig.size
@@ -331,6 +369,12 @@ export default {
          * the drawing should stop.
          */
         handleMouseUp(e) {
+            if (this.canDraw && this.isDrawing && this.bubbleEnabled) {
+                this.timeout = setTimeout(() => {
+                    this.$bus.$emit('continue_with_story')
+                }, 1500)
+            }
+
             this.isDrawing = false
         },
         /**
@@ -384,31 +428,7 @@ export default {
 
             this.canDraw = true
             this.toolbox.scrappingKnife.highlighted = false
-
-            if (
-                !this.toolbox.scrappingKnife.used &&
-                this.stage === 'manuscript'
-            ) {
-                this.toolbox.scrappingKnife.used = true
-                this.$bus.$emit('editor_continueDialog', {
-                    stage: 1,
-                    step: 3,
-                    highlightTool: 'cuttingKnife'
-                })
-                this.toolbox.step++
-            }
-
-            if (
-                !this.toolbox.scrappingKnife.used &&
-                this.stage === 'palimpsest'
-            ) {
-                this.toolbox.scrappingKnife.used = true
-                this.$bus.$emit('editor_continueDialog', {
-                    stage: 2,
-                    step: 1,
-                    timeout: 10000
-                })
-            }
+            this.toolbox.scrappingKnife.used = true
 
             this.brushConfig = {
                 color: 'RGBA(220, 202, 167, 0.1)',
@@ -430,12 +450,6 @@ export default {
 
             if (!this.toolbox.powder.used) {
                 this.toolbox.powder.used = true
-                this.toolbox.step++
-                this.$bus.$emit('editor_continueDialog', {
-                    stage: 1,
-                    step: 6,
-                    highlightTool: 'lines'
-                })
             }
 
             this.brushConfig = {
@@ -628,13 +642,9 @@ export default {
 
                         if (this.toolbox.lines.connected === 3) {
                             this.toolbox.lines.enabled = false
-                            this.toolbox.step++
-                            this.$bus.$emit('editor_continueDialog', {
-                                stage: 1,
-                                step: 7,
-                                highlightTool: 'ink',
-                                disableTimeout: true
-                            })
+                            this.timeout = setTimeout(() => {
+                                this.$bus.$emit('continue_with_story')
+                            }, 1000)
                         }
                     }
                     group.fill('red')
@@ -662,25 +672,17 @@ export default {
             }
 
             clearTimeout(this.timeout)
+            this.$bus.$emit('editor_continueDialog', {
+                stage: 1,
+                step: 4,
+                disableTimeout: true
+            })
 
-            if (!this.toolbox.cuttingKnife.used) {
-                this.$bus.$emit('editor_continueDialog', {
-                    stage: 1,
-                    step: 4,
-                    disableTimeout: true
-                })
+            this.toolbox.cuttingKnife.used = true
 
-                this.timeout = setTimeout(() => {
-                    this.toolbox.cuttingKnife.used = true
-                    this.toolbox.step++
-                    this.$bus.$emit('editor_continueDialog', {
-                        stage: 1,
-                        step: 5,
-                        highlightTool: 'powder',
-                        disableTimeout: true
-                    })
-                }, 3000)
-            }
+            this.timeout = setTimeout(() => {
+                this.$bus.$emit('continue_with_story')
+            }, 1000)
 
             this.canvasSize.index =
                 this.canvasSize.index < this.canvasSize.classes.length - 1

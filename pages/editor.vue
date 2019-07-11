@@ -6,20 +6,6 @@
                     $t('guide_messages.stage_' + guideStage + '_' + guideStep)
                 "
             />
-            <p
-                @click="pushDialogByStep"
-                class="button"
-                v-if="guideStep === 8 || (guideStage === 2 && guideStep === 1)"
-            >
-                {{ $t('button_continue') }}
-            </p>
-            <p
-                v-if="guideStep === 9 && canvas.showContinueToEditor"
-                @click="changeEditor"
-                class="button"
-            >
-                {{ $t('button_continue') }}
-            </p>
         </guide-bubble>
         <div />
         <konva-canvas
@@ -32,7 +18,6 @@
 </template>
 
 <script>
-import { setTimeout, clearTimeout } from 'timers'
 import { mapMutations } from 'vuex'
 import KonvaCanvas from '~/components/Canvas.vue'
 import GuideBubble from '~/components/Bubble.vue'
@@ -44,16 +29,17 @@ export default {
     },
     data() {
         return {
-            guide: {
-                timeout: null,
-                timeoutTime: 10000
-            },
             canvas: {
                 key: 'manuscript',
                 background: '/imgs/background_canvas.png',
                 showContinueToEditor: true
             }
         }
+    },
+    created() {
+        this.$bus.$on('resetTheEditor', () => {
+            this.changeEditor()
+        })
     },
     computed: {
         guideStep() {
@@ -62,16 +48,6 @@ export default {
         guideStage() {
             return this.$store.state.guide.stage
         }
-    },
-    created() {
-        this.timeout = setTimeout(() => {
-            this.updateStep(2)
-            this.$bus.$emit('editor_higlightTool', 'scrappingKnife')
-        }, 3000)
-
-        this.$bus.$on('editor_continueDialog', (eventData) => {
-            this.continueGuideDialog(eventData)
-        })
     },
     methods: {
         ...mapMutations({
@@ -84,38 +60,7 @@ export default {
                 background: '/imgs/background_palimpsest.png',
                 showContinueToEditor: false
             }
-        },
-        pushDialogByStep() {
-            this.continueGuideDialog({
-                step: this.guideStep + 1,
-                stage: this.guideStage,
-                disableTimeout: true
-            })
-        },
-        continueGuideDialog(data) {
-            clearTimeout(this.timeout)
-            const timeout = data.timeout !== undefined ? data.timeout : 3000
-
-            if (!data.disableTimeout) {
-                this.timeout = setTimeout(() => {
-                    this.updateStep(data.step)
-                    this.updateStage(data.stage)
-
-                    if (data.highlightTool !== undefined) {
-                        this.$bus.$emit(
-                            'editor_higlightTool',
-                            data.highlightTool
-                        )
-                    }
-                }, timeout)
-            } else {
-                this.updateStep(data.step)
-                this.updateStage(data.stage)
-
-                if (data.highlightTool !== undefined) {
-                    this.$bus.$emit('editor_higlightTool', data.highlightTool)
-                }
-            }
+            this.$bus.$emit('hide_bubble')
         }
     }
 }
@@ -134,11 +79,13 @@ export default {
     border-radius: 8px;
     margin-top: 10px;
     color: #fff;
-    padding: 0.5em;
+    padding: 0.75em;
     display: inline-block;
+    outline: none;
     cursor: pointer;
+    border: none;
 }
 .empty-margin {
-    margin-top: 70px;
+    margin-top: 30px;
 }
 </style>

@@ -5,10 +5,10 @@ export const state = () => ({
 })
 
 export const mutations = {
-    updateStep(state, step) {
+    updateStep(state, step, fireEvent = undefined, eventData = {}) {
         state.step = step
     },
-    updateStage(state, stage) {
+    updateStage(state, stage, fireEvent = undefined, eventData = {}) {
         state.stage = stage
     },
     enableContinue(state, enable) {
