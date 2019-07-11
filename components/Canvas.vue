@@ -29,25 +29,13 @@
                 :class="[
                     { higlighted: toolbox.powder.highlighted },
                     'button-box',
+                    'button-box-right',
                     'powder',
                     { 'active-tool': toolbox.activeTool === 'powder' },
                     { 'tool-disabled': !toolbox.powder.enabled }
                 ]"
             >
                 {{ $t('tools.powder') }}
-            </button>
-            <button
-                @click="addLiningDots"
-                :class="[
-                    { higlighted: toolbox.lines.highlighted },
-                    'button-box',
-                    'button-box-right',
-                    'ruler',
-                    { 'active-tool': toolbox.activeTool === 'lines' },
-                    { 'tool-disabled': !toolbox.lines.enabled }
-                ]"
-            >
-                {{ $t('tools.add_lines') }}
             </button>
             <button
                 @click="drawWithInk"
@@ -231,7 +219,7 @@ export default {
             this.highlight('powder')
         })
         this.$bus.$on('highlightRuler', () => {
-            this.highlight('lines')
+            this.addLiningDots()
         })
         this.$bus.$on('highlightInk', () => {
             this.highlight('ink')
@@ -277,15 +265,15 @@ export default {
                     break
                 case 10:
                     this.toolbox.lines.enabled = false
-                    this.toolbox.scrappingKnife.enabled = true
-                    this.toolbox.cuttingKnife.enabled = false
+                    this.toolbox.scrappingKnife.enabled = false
+                    this.toolbox.cuttingKnife.enabled = true
                     this.toolbox.powder.enabled = false
                     this.toolbox.ink.enabled = true
                     break
                 default:
                     this.toolbox.lines.enabled = false
-                    this.toolbox.scrappingKnife.enabled = true
-                    this.toolbox.cuttingKnife.enabled = false
+                    this.toolbox.scrappingKnife.enabled = false
+                    this.toolbox.cuttingKnife.enabled = true
                     this.toolbox.powder.enabled = false
                     this.toolbox.ink.enabled = true
             }
@@ -372,7 +360,7 @@ export default {
             if (this.canDraw && this.isDrawing && this.bubbleEnabled) {
                 this.timeout = setTimeout(() => {
                     this.$bus.$emit('continue_with_story')
-                }, 4000)
+                }, 2500)
             }
 
             this.isDrawing = false
@@ -447,9 +435,9 @@ export default {
          * was not enough time to implement it.
          */
         addLiningDots() {
-            if (!this.toolbox.lines.enabled) {
-                return
-            }
+            this.canDraw = false
+            this.$bus.$emit('hide_bubble')
+            this.unlockTools()
 
             this.toolbox.activeTool = 'lines'
 
@@ -652,23 +640,36 @@ export default {
                 return
             }
 
-            clearTimeout(this.timeout)
-            this.$bus.$emit('editor_continueDialog', {
-                stage: 1,
-                step: 4,
-                disableTimeout: true
-            })
+            if (this.guideStep > 8) {
+                this.toolbox.activeTool = 'cuttingKnife'
 
-            this.toolbox.cuttingKnife.used = true
+                this.canDraw = true
+                this.toolbox.cuttingKnife.highlighted = false
+                this.toolbox.cuttingKnife.used = true
 
-            this.timeout = setTimeout(() => {
-                this.$bus.$emit('continue_with_story')
-            }, 1000)
+                this.brushConfig = {
+                    color: 'RGBA(220, 202, 167, 0.1)',
+                    size: 50
+                }
+            } else {
+                clearTimeout(this.timeout)
+                this.$bus.$emit('editor_continueDialog', {
+                    stage: 1,
+                    step: 4,
+                    disableTimeout: true
+                })
 
-            this.canvasSize.index =
-                this.canvasSize.index < this.canvasSize.classes.length - 1
-                    ? this.canvasSize.index + 1
-                    : 0
+                this.toolbox.cuttingKnife.used = true
+
+                this.timeout = setTimeout(() => {
+                    this.$bus.$emit('continue_with_story')
+                }, 1000)
+
+                this.canvasSize.index =
+                    this.canvasSize.index < this.canvasSize.classes.length - 1
+                        ? this.canvasSize.index + 1
+                        : 0
+            }
         },
         /**
          * Check whether objects colided.
@@ -731,9 +732,6 @@ export default {
 }
 .button-box-right {
     background: url('/imgs/background_tool-right.png') no-repeat 0 0;
-}
-.higlighted {
-    background-position-x: -150px;
 }
 .tool-disabled::before {
     opacity: 0.2;

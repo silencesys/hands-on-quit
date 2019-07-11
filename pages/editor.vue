@@ -85,7 +85,4 @@ export default {
     cursor: pointer;
     border: none;
 }
-.empty-margin {
-    margin-top: 30px;
-}
 </style>
