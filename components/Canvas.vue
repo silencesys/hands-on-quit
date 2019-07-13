@@ -54,12 +54,7 @@
         </div>
 
         <div class="table">
-            <div
-                id="konva-container"
-                :class="canvasSize.classes[canvasSize.index]"
-                ref="container"
-                :style="'background-image: url(' + this.customBackground + ');'"
-            >
+            <div id="canvas-editor" ref="container">
                 <v-stage
                     ref="stage"
                     :config="stageSize"
@@ -70,8 +65,12 @@
                     @mousedown="handleMouseDown"
                     @touchstart="handleMouseDown"
                 >
-                    <v-layer ref="background"></v-layer>
-                    <v-layer ref="manuscript"></v-layer>
+                    <v-layer ref="background">
+                        <v-image :config="{ image: imageSrc }" />
+                    </v-layer>
+                    <v-layer ref="manuscript">
+                        <v-image :config="{ image: drawingLayer }" />
+                    </v-layer>
                     <v-layer ref="grid">
                         <v-circle
                             :config="circle"
@@ -88,7 +87,12 @@
                             class="grid-line"
                         />
                     </v-layer>
-                    <v-layer ref="palimpsest"></v-layer>
+                    <v-layer ref="palimpsest">
+                        <v-image
+                            :config="{ image: palimpsestLayer }"
+                            v-if="canDraw"
+                        />
+                    </v-layer>
                 </v-stage>
             </div>
         </div>
@@ -113,9 +117,13 @@ export default {
     data() {
         return {
             stageSize: {
-                width: 1000,
-                height: 1000
+                width: 500,
+                height: 500,
+                container: '#canvas-editor'
             },
+            imageSrc: null,
+            drawingLayer: null,
+            palimpsestLayer: null,
             circles: [],
             lines: [],
             isDrawing: false,
@@ -151,7 +159,9 @@ export default {
                 cuttingKnife: {
                     highlighted: false,
                     used: false,
-                    enabled: false
+                    enabled: false,
+                    width: 90,
+                    originalWidth: 0
                 },
                 powder: {
                     highlighted: false,
@@ -173,7 +183,10 @@ export default {
         }
     },
     watch: {
-        'toolbox.step': 'unlockTools'
+        'toolbox.step': 'unlockTools',
+        customBackground: (current, previous) => {
+            this.setCanvasBackground(current)
+        }
     },
     computed: {
         currentLayer() {
@@ -191,6 +204,8 @@ export default {
             manuscript: this.$refs.manuscript.getNode(),
             palimpsest: this.$refs.palimpsest.getNode()
         }
+
+        this.setCanvasBackground(this.customBackground)
 
         let canvas = document.querySelectorAll('canvas')
         canvas = canvas[1]
@@ -233,6 +248,56 @@ export default {
         disableBubble() {
             this.bubbleEnabled = false
             this.$bus.$emit('hide_bubble')
+        },
+        setCanvasBackground(src) {
+            const image = new Image()
+            image.onload = () => {
+                // set image only when it is loaded
+                this.imageSrc = image
+            }
+            image.src = src
+        },
+        /**
+         * Make the canvas responsive.
+         * It is based on container size and it will definitely
+         * need some more love.
+         */
+        fitStageToContainer(
+            event,
+            customWidth = undefined,
+            customHeight = undefined
+        ) {
+            const container = this.$refs.container
+
+            if (!container) {
+                return
+            }
+
+            const height = container.offsetHeight
+            const width = container.offsetWidth
+
+            this.stageSize.width =
+                customWidth !== undefined ? customWidth : width
+            this.stageSize.height =
+                customHeight !== undefined ? customHeight : height
+        },
+        keepManuscriptLayerDrawing() {
+            const manuscriptLayer = document.querySelectorAll('canvas')[1]
+            const imageData = manuscriptLayer.toDataURL()
+            const palimpsestLayer = document.querySelectorAll('canvas')[3]
+            const imageData2 = palimpsestLayer.toDataURL()
+
+            const image2 = new Image()
+            image2.onload = () => {
+                this.palimpsestLayer = image2
+            }
+            image2.src = imageData2
+
+            const image = new Image()
+            image.onload = () => {
+                this.drawingLayer = image
+            }
+            image.src = imageData
         },
         unlockTools() {
             switch (this.guideStep) {
@@ -299,28 +364,6 @@ export default {
             }
             this.lastPointerPosition = stage.getPointerPosition()
         },
-        /**
-         * Make the canvas responsive.
-         * It is based on container size and it will definitely
-         * need some more love.
-         */
-        fitStageToContainer() {
-            const container = this.$refs.container
-
-            if (!container) {
-                return
-            }
-
-            const height = container.offsetHeight
-            const width = container.offsetWidth
-
-            this.stageSize.width = width
-            this.stageSize.height = height
-        },
-        /**
-         * Handle mouse move, this is drawing event and all the drawing
-         * stuff happens there.
-         */
         handleMouseMove(e) {
             if (!this.isDrawing) {
                 return
@@ -363,6 +406,8 @@ export default {
                     this.$bus.$emit('continue_with_story')
                 }, 2500)
             }
+
+            this.keepManuscriptLayerDrawing()
 
             this.isDrawing = false
         },
@@ -654,22 +699,31 @@ export default {
                 }
             } else {
                 clearTimeout(this.timeout)
-                this.$bus.$emit('editor_continueDialog', {
-                    stage: 1,
-                    step: 4,
-                    disableTimeout: true
-                })
-
                 this.toolbox.cuttingKnife.used = true
+
+                const container = this.$refs.container
+                if (!container) {
+                    return
+                }
+                if (this.toolbox.cuttingKnife.originalWidth === 0) {
+                    this.toolbox.cuttingKnife.originalWidth =
+                        container.offsetWidth
+                }
+                const width = this.toolbox.cuttingKnife.originalWidth / 100
+                const newWidth = width * this.toolbox.cuttingKnife.width
+                document.getElementById('canvas-editor').style.width =
+                    newWidth + 'px'
+
+                this.fitStageToContainer(0, newWidth)
 
                 this.timeout = setTimeout(() => {
                     this.$bus.$emit('continue_with_story')
                 }, 2000)
 
-                this.canvasSize.index =
-                    this.canvasSize.index < this.canvasSize.classes.length - 1
-                        ? this.canvasSize.index + 1
-                        : 0
+                this.toolbox.cuttingKnife.width =
+                    this.toolbox.cuttingKnife.width > 20
+                        ? this.toolbox.cuttingKnife.width - 10
+                        : this.toolbox.cuttingKnife.originalWidth
             }
         },
         /**
@@ -690,12 +744,15 @@ export default {
 <style>
 #konva-container {
     box-sizing: border-box;
-    border: 1px solid black;
     margin: 0 auto;
-    overflow: hidden;
-    background: no-repeat center;
 }
-.full-size {
+#canvas-editor {
+    height: 90%;
+    position: relative;
+    display: block;
+    margin: 0 auto;
+}
+.konvajs-content {
     width: 100%;
     height: 60vh;
 }
@@ -711,8 +768,10 @@ export default {
     background: url('/imgs/background_table.png') no-repeat center -30px;
     background-clip: border-box;
     background-size: cover;
+    box-sizing: border-box;
+    position: relative;
     width: 100%;
-    height: 100%;
+    height: auto;
     padding: 3em 3em;
 }
 .toolbox-wrapper {
