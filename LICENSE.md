@@ -13,9 +13,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 # Images and non-code content
 
 Copyright 2019 Charlie Barranu, Dominika Kecsöová, Světlana Müllerová, Martin Roček
+
 All non-code content is licensed under the [Creative Commons Attribution 4.0 license](https://creativecommons.org/licenses/by/4.0/), except where noted.
 
-# Copyright holders
-Mouse picture © Bodleian Libraries, University of Oxford
-Dragon and Rabbit pictures © The British Library
-Picture of Insular MS is Copyright @ Cambridge, Corpus Christi College: licensed under [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by/4.0/)
+# Other copyright holders
+* Mouse picture © Bodleian Libraries, University of Oxford
+* Dragon and rabbit pictures © The British Library
+* Picture of Insular MS is © Cambridge, Corpus Christi College and licensed under [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by/4.0/).
