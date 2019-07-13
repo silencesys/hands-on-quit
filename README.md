@@ -9,6 +9,8 @@ a learning app for primary school children. It was designed as a prototype of th
 
 Preview of the prototype is available at [quit.silencesys.dev](https://quit.silencesys.dev).
 
+<br>
+
 # ⚙ Instructions
 
 ``` bash
