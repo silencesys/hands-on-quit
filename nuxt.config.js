@@ -19,6 +19,7 @@ export default {
         ],
         link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
     },
+    globalName: 'The Creative Scriptorium',
     /*
      ** Customize the progress-bar color
      */
