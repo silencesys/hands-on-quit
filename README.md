@@ -35,4 +35,4 @@ Dragon and rabbit pictures © The British Library
 Picture of Insular MS is  © Cambridge, Corpus Christi College and licensed under [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by/4.0/).
 
 # 👾 Warning
-This app might be developed by the original team and thus if you would like to see the code of the original prototype browse the repository under [this hash][https://github.com/silencesys/hands-on-quit/tree/7188c7e1f0870f506142c2dd0d5df149207cf21e]
+This app might be developed by the original team and thus if you would like to see the code of the original prototype browse the repository under [this hash](https://github.com/silencesys/hands-on-quit/tree/7188c7e1f0870f506142c2dd0d5df149207cf21e)
