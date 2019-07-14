@@ -57,7 +57,7 @@
             <div id="canvas-editor" ref="container">
                 <v-stage
                     ref="stage"
-                    :config="stageSize"
+                    :config="stage.config"
                     @mouseup="handleMouseUp"
                     @mousemove="handleMouseMove"
                     @touchend="handleMouseUp"
@@ -69,7 +69,9 @@
                         <v-image :config="{ image: imageSrc }" />
                     </v-layer>
                     <v-layer ref="manuscript">
-                        <v-image :config="{ image: drawingLayer }" />
+                        <v-image
+                            :config="{ image: layers.manuscriptStorage }"
+                        />
                     </v-layer>
                     <v-layer ref="grid">
                         <v-circle
@@ -89,7 +91,7 @@
                     </v-layer>
                     <v-layer ref="palimpsest">
                         <v-image
-                            :config="{ image: palimpsestLayer }"
+                            :config="{ image: layers.palimpsestStorage }"
                             v-if="canDraw"
                         />
                     </v-layer>
@@ -100,7 +102,6 @@
 </template>
 
 <script>
-let stage = null
 let context = null
 
 export default {
@@ -109,17 +110,20 @@ export default {
             type: String,
             default: '/imgs/background_canvas.png'
         },
-        stage: {
+        stageName: {
             type: String,
             default: 'manuscript'
         }
     },
     data() {
         return {
-            stageSize: {
-                width: 500,
-                height: 500,
-                container: '#canvas-editor'
+            stage: {
+                node: null,
+                config: {
+                    width: 500,
+                    height: 500,
+                    container: '#canvas-editor'
+                }
             },
             imageSrc: null,
             drawingLayer: null,
@@ -140,7 +144,9 @@ export default {
                 config: {
                     position: 1,
                     name: 'background'
-                }
+                },
+                palimpsestStorage: null,
+                manuscriptStorage: null
             },
             canvasSize: {
                 classes: ['full-size', 'medium-size', 'small-size'],
@@ -197,7 +203,7 @@ export default {
         }
     },
     mounted() {
-        stage = this.$refs.stage.getNode()
+        this.stage.node = this.$refs.stage.getNode()
 
         this.layers = {
             background: this.$refs.background.getNode(),
@@ -211,9 +217,9 @@ export default {
         canvas = canvas[1]
         context = canvas.getContext('2d')
 
-        this.fitStageToContainer()
+        this.setCanvasSize()
 
-        if (this.stage === 'palimpsest') {
+        if (this.stageName === 'palimpsest') {
             this.toolbox.step = 4
             this.toolbox.scrappingKnife.used = false
             this.toolbox.cuttingKnife.used = true
@@ -222,7 +228,7 @@ export default {
             this.toolbox.lines.used = true
         }
 
-        window.addEventListener('resize', this.fitStageToContainer)
+        window.addEventListener('resize', this.setCanvasSize)
 
         // Event listeners
         this.$bus.$on('highlightScrappingKnife', () => {
@@ -245,28 +251,31 @@ export default {
         })
     },
     methods: {
-        disableBubble() {
-            this.bubbleEnabled = false
-            this.$bus.$emit('hide_bubble')
-        },
+        /**
+         * Set canvas background to given source image.
+         * This method uses standard html API to create element image. When the
+         * image is succesfully loaded it is also stored in data of this
+         * component.
+         *
+         * @param {String} src can be link or base64 encoded image
+         */
         setCanvasBackground(src) {
             const image = new Image()
             image.onload = () => {
-                // set image only when it is loaded
                 this.imageSrc = image
             }
             image.src = src
         },
         /**
-         * Make the canvas responsive.
-         * It is based on container size and it will definitely
-         * need some more love.
+         * Set canvas size to given values. Because size of the canvas cannot
+         * be changed directly, the only way to achieve proper responsivity is
+         * to modify data object in this component.
+         *
+         * @param {Object} event
+         * @param {Number} customWidth
+         * @param {Number} customHeight
          */
-        fitStageToContainer(
-            event,
-            customWidth = undefined,
-            customHeight = undefined
-        ) {
+        setCanvasSize(event, customWidth = 0, customHeight = 0) {
             const container = this.$refs.container
 
             if (!container) {
@@ -276,28 +285,43 @@ export default {
             const height = container.offsetHeight
             const width = container.offsetWidth
 
-            this.stageSize.width =
-                customWidth !== undefined ? customWidth : width
-            this.stageSize.height =
-                customHeight !== undefined ? customHeight : height
+            this.stage.config.width = customWidth !== 0 ? customWidth : width
+            this.stage.config.height =
+                customHeight !== 0 ? customHeight : height
         },
-        keepManuscriptLayerDrawing() {
+        /**
+         * Save layer's content, because when the canvas get resized free
+         * drawing will disappear from it. This method converts content of the
+         * canvas into dataURL and stores it as an image. This prevents from
+         * erasing content on one hand, but on the other keeps things on the
+         * place.
+         *
+         * @todo Save only active layer, not both of them.
+         */
+        saveLayerContent() {
+            // Store content of mansucript layer.
             const manuscriptLayer = document.querySelectorAll('canvas')[1]
-            const imageData = manuscriptLayer.toDataURL()
+            const manuscriptImage = manuscriptLayer.toDataURL()
+
+            const imageFromManuscriptLayer = new Image()
+            imageFromManuscriptLayer.onload = () => {
+                this.layers.manuscriptStorage = imageFromManuscriptLayer
+            }
+            imageFromManuscriptLayer.src = manuscriptImage
+
+            // Store content of palimpsest layer.
             const palimpsestLayer = document.querySelectorAll('canvas')[3]
-            const imageData2 = palimpsestLayer.toDataURL()
+            const palimpsestImage = palimpsestLayer.toDataURL()
 
-            const image2 = new Image()
-            image2.onload = () => {
-                this.palimpsestLayer = image2
+            const imageFromPalimpsestLayer = new Image()
+            imageFromPalimpsestLayer.onload = () => {
+                this.layers.palimpsestStorage = imageFromPalimpsestLayer
             }
-            image2.src = imageData2
-
-            const image = new Image()
-            image.onload = () => {
-                this.drawingLayer = image
-            }
-            image.src = imageData
+            imageFromPalimpsestLayer.src = palimpsestImage
+        },
+        disableBubble() {
+            this.bubbleEnabled = false
+            this.$bus.$emit('hide_bubble')
         },
         unlockTools() {
             switch (this.guideStep) {
@@ -362,7 +386,7 @@ export default {
             if (this.canDraw === true) {
                 this.isDrawing = true
             }
-            this.lastPointerPosition = stage.getPointerPosition()
+            this.lastPointerPosition = this.stage.node.getPointerPosition()
         },
         handleMouseMove(e) {
             if (!this.isDrawing) {
@@ -384,7 +408,7 @@ export default {
             }
 
             context.moveTo(localPos.x, localPos.y)
-            const pos = stage.getPointerPosition()
+            const pos = this.stage.node.getPointerPosition()
             localPos = {
                 x: pos.x,
                 y: pos.y
@@ -407,7 +431,7 @@ export default {
                 }, 2500)
             }
 
-            this.keepManuscriptLayerDrawing()
+            this.saveLayerContent()
 
             this.isDrawing = false
         },
@@ -714,7 +738,7 @@ export default {
                 document.getElementById('canvas-editor').style.width =
                     newWidth + 'px'
 
-                this.fitStageToContainer(0, newWidth)
+                this.setCanvasSize(0, newWidth)
 
                 this.timeout = setTimeout(() => {
                     this.$bus.$emit('continue_with_story')
