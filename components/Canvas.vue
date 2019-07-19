@@ -70,8 +70,8 @@
                     </v-layer>
                     <v-layer ref="manuscript">
                         <v-image
-                            :config="layers.manuscriptStorage"
                             ref="manuscriptLayerStorage"
+                            :config="layers.manuscriptStorage"
                         />
                     </v-layer>
                     <v-layer v-if="toolbox.activeTool === 'cuttingKnife'">
@@ -100,7 +100,7 @@
                     </v-layer>
                     <v-layer ref="palimpsest">
                         <v-image
-                            v-if="canDraw"
+                            v-if="toolbox.drawingTools.canDraw"
                             :config="layers.palimpsestStorage"
                         />
                     </v-layer>
@@ -134,19 +134,6 @@ export default {
                     container: '#canvas-editor'
                 }
             },
-            imageSrc: null,
-            drawingLayer: null,
-            palimpsestLayer: null,
-            circles: [],
-            lines: [],
-            rectangles: [],
-            isDrawing: false,
-            canDraw: false,
-            lastPointerPosition: { x: 0, y: 0 },
-            brushConfig: {
-                color: '#55DD33',
-                size: 5
-            },
             layers: {
                 config: {
                     position: 1,
@@ -171,15 +158,25 @@ export default {
                 manuscript: null,
                 palimpsest: null
             },
-            canvasSize: {
-                classes: ['full-size', 'medium-size', 'small-size'],
-                index: 0
+            lastPointerPosition: { x: 0, y: 0 },
+            // Shape storage
+            circles: [],
+            lines: [],
+            rectangles: [],
+            timeout: null,
+            brushConfig: {
+                color: '#55DD33',
+                size: 5
             },
             bubbleEnabled: true,
-            timeout: null,
+            // Toolbox settings
             toolbox: {
                 step: 0,
                 activeTool: null,
+                drawingTools: {
+                    isDrawing: false,
+                    canDraw: false
+                },
                 scrappingKnife: {
                     highlighted: false,
                     used: false,
@@ -189,7 +186,8 @@ export default {
                     highlighted: false,
                     used: false,
                     enabled: false,
-                    canDraw: false
+                    canDraw: false,
+                    mode: 'crop'
                 },
                 powder: {
                     highlighted: false,
@@ -271,6 +269,73 @@ export default {
         })
     },
     methods: {
+        /**
+         * Handle mouse down.
+         *
+         * @param {Object} event
+         */
+        handleMouseDown(event) {
+            // Save last pointer position, so we can start drawing from there.
+            this.lastPointerPosition = this.stage.node.getPointerPosition()
+
+            if (this.toolbox.drawingTools.canDraw) {
+                // Enable drawing by standard drawing tools
+                this.toolbox.drawingTools.isDrawing = true
+            } else if (
+                this.toolbox.activeTool === 'cuttingKnife' &&
+                this.toolbox.cuttingKnife.mode === 'crop'
+            ) {
+                // Enable croping by creation of croping rectangle
+                this.toolbox.cuttingKnife.canDraw = true
+                this.createCuttingRectangle()
+            }
+        },
+        /**
+         * Handle mouse moving on the canvas.
+         *
+         * @param {Object} event
+         */
+        handleMouseMove(event) {
+            if (
+                this.toolbox.drawingTools.canDraw &&
+                this.toolbox.drawingTools.isDrawing
+            ) {
+                this.startFreeDrawing()
+            } else if (
+                this.toolbox.activeTool === 'cuttingKnife' &&
+                this.toolbox.cuttingKnife.canDraw &&
+                this.toolbox.cuttingKnife.mode === 'crop'
+            ) {
+                this.drawCuttingRectangle()
+            }
+        },
+        /**
+         * When we click outside or just leave the area,
+         * the drawing should stop.
+         *
+         * @param {Object} event
+         */
+        handleMouseUp(event) {
+            if (
+                this.toolbox.drawingTools.canDraw &&
+                this.toolbox.drawingTools.isDrawing &&
+                this.bubbleEnabled
+            ) {
+                this.toolbox.drawingTools.isDrawing = false
+
+                this.timeout = setTimeout(() => {
+                    this.$bus.$emit('continue_with_story')
+                }, 2500)
+            } else if (
+                this.toolbox.activeTool === 'cuttingKnife' &&
+                this.toolbox.cuttingKnife.canDraw &&
+                this.toolbox.cuttingKnife.mode === 'crop'
+            ) {
+                this.cutCanvasSize()
+            }
+
+            this.saveLayerContent()
+        },
         /**
          * Set canvas background to given source image.
          * This method uses standard html API to create element image. When the
@@ -374,6 +439,34 @@ export default {
             }
             imageFromPalimpsestLayer.src = palimpsestImage
         },
+        startFreeDrawing() {
+            clearTimeout(this.timeout)
+
+            context.globalCompositeOperation = 'source-over'
+            context.strokeStyle = this.brushConfig.color
+            context.lineWidth = this.brushConfig.size
+            context.lineJoin = 'round'
+
+            context.beginPath()
+
+            let localPos = {
+                x: this.lastPointerPosition.x,
+                y: this.lastPointerPosition.y
+            }
+
+            context.moveTo(localPos.x, localPos.y)
+            const pos = this.stage.node.getPointerPosition()
+            localPos = {
+                x: pos.x,
+                y: pos.y
+            }
+            context.lineTo(localPos.x, localPos.y)
+            context.closePath()
+            context.stroke()
+
+            this.lastPointerPosition = pos
+            this.layers.background.batchDraw()
+        },
         disableBubble() {
             this.bubbleEnabled = false
             this.$bus.$emit('hide_bubble')
@@ -415,6 +508,13 @@ export default {
                     this.toolbox.powder.enabled = false
                     this.toolbox.ink.enabled = true
                     break
+                case 17:
+                    this.toolbox.lines.enabled = false
+                    this.toolbox.scrappingKnife.enabled = false
+                    this.toolbox.cuttingKnife.enabled = true
+                    this.toolbox.powder.enabled = false
+                    this.toolbox.ink.enabled = true
+                    break
                 default:
                     this.toolbox.lines.enabled = false
                     this.toolbox.scrappingKnife.enabled = false
@@ -429,86 +529,9 @@ export default {
         highlight(toolName) {
             this.toolbox[toolName].highlighted = true
             this.toolbox.activeTool = null
-            this.canDraw = false
+            this.toolbox.drawingTools.canDraw = false
             this.$bus.$emit('hide_bubble')
             this.unlockTools()
-        },
-        /**
-         * Canvas, handle mouse down event, if user can draw, this will
-         * start drawing.
-         */
-        handleMouseDown(e) {
-            this.lastPointerPosition = this.stage.node.getPointerPosition()
-
-            if (this.canDraw === true) {
-                this.isDrawing = true
-            }
-
-            if (this.toolbox.activeTool === 'cuttingKnife') {
-                this.toolbox.cuttingKnife.canDraw = true
-                this.createCuttingRectangle()
-            }
-        },
-        handleMouseMove(e) {
-            if (
-                this.toolbox.activeTool === 'cuttingKnife' &&
-                this.toolbox.cuttingKnife.canDraw
-            ) {
-                this.drawCuttingRectangle()
-            }
-
-            if (!this.isDrawing) {
-                return
-            }
-
-            clearTimeout(this.timeout)
-
-            context.globalCompositeOperation = 'source-over'
-            context.strokeStyle = this.brushConfig.color
-            context.lineWidth = this.brushConfig.size
-            context.lineJoin = 'round'
-
-            context.beginPath()
-
-            let localPos = {
-                x: this.lastPointerPosition.x,
-                y: this.lastPointerPosition.y
-            }
-
-            context.moveTo(localPos.x, localPos.y)
-            const pos = this.stage.node.getPointerPosition()
-            localPos = {
-                x: pos.x,
-                y: pos.y
-            }
-            context.lineTo(localPos.x, localPos.y)
-            context.closePath()
-            context.stroke()
-
-            this.lastPointerPosition = pos
-            this.layers.background.batchDraw()
-        },
-        /**
-         * When we click outside or just leave the area,
-         * the drawing should stop.
-         */
-        handleMouseUp(e) {
-            if (
-                this.toolbox.activeTool === 'cuttingKnife' &&
-                this.toolbox.cuttingKnife.canDraw
-            ) {
-                this.cutCanvasSize()
-            }
-
-            if (this.canDraw && this.isDrawing && this.bubbleEnabled) {
-                this.timeout = setTimeout(() => {
-                    this.$bus.$emit('continue_with_story')
-                }, 2500)
-            }
-
-            this.saveLayerContent()
-
-            this.isDrawing = false
         },
         /**
          * Create new rectangle config.
@@ -615,7 +638,7 @@ export default {
 
             this.toolbox.activeTool = 'ink'
 
-            this.canDraw = true
+            this.toolbox.drawingTools.canDraw = true
             this.toolbox.ink.highlighted = false
             this.toolbox.ink.used = true
 
@@ -635,7 +658,7 @@ export default {
 
             this.toolbox.activeTool = 'scrappingKnife'
 
-            this.canDraw = true
+            this.toolbox.drawingTools.canDraw = true
             this.toolbox.scrappingKnife.highlighted = false
             this.toolbox.scrappingKnife.used = true
 
@@ -654,7 +677,7 @@ export default {
 
             this.toolbox.activeTool = 'powder'
 
-            this.canDraw = true
+            this.toolbox.drawingTools.canDraw = true
             this.toolbox.powder.highlighted = false
 
             if (!this.toolbox.powder.used) {
@@ -675,13 +698,13 @@ export default {
          * was not enough time to implement it.
          */
         addLiningDots() {
-            this.canDraw = false
+            this.toolbox.drawingTools.canDraw = false
             this.$bus.$emit('hide_bubble')
             this.unlockTools()
 
             this.toolbox.activeTool = 'lines'
 
-            this.canDraw = false
+            this.toolbox.drawingTools.canDraw = false
             this.toolbox.lines.highlighted = false
 
             if (!this.toolbox.lines.used) {
@@ -882,7 +905,7 @@ export default {
             if (this.guideStep > 8) {
                 this.toolbox.activeTool = 'cuttingKnife'
 
-                this.canDraw = true
+                this.toolbox.drawingTools.canDraw = true
                 this.toolbox.cuttingKnife.highlighted = false
                 this.toolbox.cuttingKnife.used = true
 
