@@ -624,6 +624,7 @@ export default {
                 }, 1000)
 
                 this.toolbox.cuttingKnife.canDraw = false
+                this.toolbox.cuttingKnife.mode = 'brush'
 
                 cuttingRectangle.visible(false)
             }
