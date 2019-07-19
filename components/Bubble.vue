@@ -1,11 +1,11 @@
 <template>
-    <div class="guide-content-wrapper star" v-if="visible">
-        <div class="star-wrapper" v-if="guideStep === 18 || guideStep === 12">
+    <div v-if="visible" class="guide-content-wrapper star">
+        <div v-if="guideStep === 18 || guideStep === 12" class="star-wrapper">
             <img
-                src="/imgs/star.png"
-                class="star-image"
                 v-for="(star, index) in starCount"
                 :key="index"
+                src="/imgs/star.png"
+                class="star-image"
             />
         </div>
         <div class="guide-wrapper">
@@ -41,17 +41,6 @@ export default {
             visible: true
         }
     },
-    created() {
-        this.$bus.$on('hide_bubble', () => {
-            this.hideBubble()
-        })
-        this.$bus.$on('show_bubble', () => {
-            this.showBubble()
-        })
-        this.$bus.$on('continue_with_story', () => {
-            this.continueGuide()
-        })
-    },
     computed: {
         guideStep() {
             return this.$store.state.guide.step
@@ -72,6 +61,17 @@ export default {
 
             return this.$t('button_continue')
         }
+    },
+    created() {
+        this.$bus.$on('hide_bubble', () => {
+            this.hideBubble()
+        })
+        this.$bus.$on('show_bubble', () => {
+            this.showBubble()
+        })
+        this.$bus.$on('continue_with_story', () => {
+            this.continueGuide()
+        })
     },
     methods: {
         ...mapMutations({

@@ -2,7 +2,6 @@
     <div>
         <div class="toolbox-wrapper">
             <button
-                @click="eraseContent"
                 :class="[
                     { higlighted: toolbox.scrappingKnife.highlighted },
                     'button-box',
@@ -10,11 +9,11 @@
                     { 'active-tool': toolbox.activeTool === 'scrappingKnife' },
                     { 'tool-disabled': !toolbox.scrappingKnife.enabled }
                 ]"
+                @click="eraseContent"
             >
                 {{ $t('tools.scrapping_knife') }}
             </button>
             <button
-                @click="resizeCanvas"
                 :class="[
                     { higlighted: toolbox.cuttingKnife.highlighted },
                     'button-box',
@@ -22,11 +21,11 @@
                     { 'active-tool': toolbox.activeTool === 'cuttingKnife' },
                     { 'tool-disabled': !toolbox.cuttingKnife.enabled }
                 ]"
+                @click="resizeCanvas"
             >
                 {{ $t('tools.cutting_knife') }}
             </button>
             <button
-                @click="powderContent"
                 :class="[
                     { higlighted: toolbox.powder.highlighted },
                     'button-box',
@@ -35,11 +34,11 @@
                     { 'active-tool': toolbox.activeTool === 'powder' },
                     { 'tool-disabled': !toolbox.powder.enabled }
                 ]"
+                @click="powderContent"
             >
                 {{ $t('tools.powder') }}
             </button>
             <button
-                @click="drawWithInk"
                 :class="[
                     { higlighted: toolbox.ink.highlighted },
                     'button-box',
@@ -48,6 +47,7 @@
                     { 'active-tool': toolbox.activeTool === 'ink' },
                     { 'tool-disabled': !toolbox.ink.enabled }
                 ]"
+                @click="drawWithInk"
             >
                 {{ $t('tools.ink') }}
             </button>
@@ -66,33 +66,42 @@
                     @touchstart="handleMouseDown"
                 >
                     <v-layer ref="background">
-                        <v-image :config="{ image: imageSrc }" />
+                        <v-image :config="layers.backgroundStorage" />
                     </v-layer>
                     <v-layer ref="manuscript">
                         <v-image
-                            :config="{ image: layers.manuscriptStorage }"
+                            :config="layers.manuscriptStorage"
+                            ref="manuscriptLayerStorage"
+                        />
+                    </v-layer>
+                    <v-layer v-if="toolbox.activeTool === 'cuttingKnife'">
+                        <v-rect
+                            v-for="(rectangle, index) in rectangles"
+                            :key="'rectangle' + index"
+                            ref="rectangle"
+                            :config="rectangle"
                         />
                     </v-layer>
                     <v-layer ref="grid">
                         <v-circle
-                            :config="circle"
                             v-for="(circle, index) in circles"
                             :key="'circle' + index"
-                            @dragmove="adjustLines($event, index)"
                             ref="circle"
                             class="fillShape"
+                            :config="circle"
+                            @dragmove="adjustLines($event, index)"
                         />
                         <v-line
-                            :config="line"
                             v-for="(line, index) in lines"
                             :key="'line' + index"
+                            :config="line"
                             class="grid-line"
                         />
                     </v-layer>
                     <v-layer ref="palimpsest">
                         <v-image
-                            :config="{ image: layers.palimpsestStorage }"
                             v-if="canDraw"
+                            :config="layers.palimpsestStorage"
                         />
                     </v-layer>
                 </v-stage>
@@ -130,6 +139,7 @@ export default {
             palimpsestLayer: null,
             circles: [],
             lines: [],
+            rectangles: [],
             isDrawing: false,
             canDraw: false,
             lastPointerPosition: { x: 0, y: 0 },
@@ -138,15 +148,28 @@ export default {
                 size: 5
             },
             layers: {
-                background: null,
-                manuscript: null,
-                palimpsest: null,
                 config: {
                     position: 1,
                     name: 'background'
                 },
-                palimpsestStorage: null,
-                manuscriptStorage: null
+                backgroundStorage: {
+                    x: 0,
+                    y: 0,
+                    image: null
+                },
+                palimpsestStorage: {
+                    x: 0,
+                    y: 0,
+                    image: null
+                },
+                manuscriptStorage: {
+                    x: 0,
+                    y: 0,
+                    image: null
+                },
+                background: null,
+                manuscript: null,
+                palimpsest: null
             },
             canvasSize: {
                 classes: ['full-size', 'medium-size', 'small-size'],
@@ -166,8 +189,7 @@ export default {
                     highlighted: false,
                     used: false,
                     enabled: false,
-                    width: 90,
-                    originalWidth: 0
+                    canDraw: false
                 },
                 powder: {
                     highlighted: false,
@@ -188,12 +210,6 @@ export default {
             }
         }
     },
-    watch: {
-        'toolbox.step': 'unlockTools',
-        customBackground: (current, previous) => {
-            this.setCanvasBackground(current)
-        }
-    },
     computed: {
         currentLayer() {
             return this.layers.config.name
@@ -202,14 +218,18 @@ export default {
             return this.$store.state.guide.step
         }
     },
+    watch: {
+        'toolbox.step': 'unlockTools',
+        customBackground: (current, previous) => {
+            this.setCanvasBackground(current)
+        }
+    },
     mounted() {
         this.stage.node = this.$refs.stage.getNode()
 
-        this.layers = {
-            background: this.$refs.background.getNode(),
-            manuscript: this.$refs.manuscript.getNode(),
-            palimpsest: this.$refs.palimpsest.getNode()
-        }
+        this.layers.background = this.$refs.background.getNode()
+        this.layers.manuscript = this.$refs.manuscript.getNode()
+        this.layers.palimpsest = this.$refs.palimpsest.getNode()
 
         this.setCanvasBackground(this.customBackground)
 
@@ -262,7 +282,7 @@ export default {
         setCanvasBackground(src) {
             const image = new Image()
             image.onload = () => {
-                this.imageSrc = image
+                this.layers.backgroundStorage.image = image
             }
             image.src = src
         },
@@ -288,6 +308,33 @@ export default {
             this.stage.config.width = customWidth !== 0 ? customWidth : width
             this.stage.config.height =
                 customHeight !== 0 ? customHeight : height
+
+            this.addReactiveRectangle(width, height)
+        },
+        /**
+         * Add reactive rectangle to canvas, so we can catch drawing/dragging
+         * events and show cropping borders.
+         *
+         * @param {Number} width,
+         * @param {Number} height
+         */
+        addReactiveRectangle(width, height) {
+            const reactiveRectIndex = this.rectangles.findIndex((rect) => {
+                return rect.isReactive === true
+            })
+
+            if (reactiveRectIndex >= 0) {
+                this.rectangles[reactiveRectIndex].width = width
+                this.rectangles[reactiveRectIndex].height = height
+            } else {
+                this.rectangles.push({
+                    x: 0,
+                    y: 0,
+                    width,
+                    height,
+                    isReactive: true
+                })
+            }
         },
         /**
          * Save layer's content, because when the canvas get resized free
@@ -305,7 +352,11 @@ export default {
 
             const imageFromManuscriptLayer = new Image()
             imageFromManuscriptLayer.onload = () => {
-                this.layers.manuscriptStorage = imageFromManuscriptLayer
+                this.layers.manuscriptStorage.image = imageFromManuscriptLayer
+                if (this.toolbox.powder.used) {
+                    this.layers.manuscriptStorage.x = 0
+                    this.layers.manuscriptStorage.y = 0
+                }
             }
             imageFromManuscriptLayer.src = manuscriptImage
 
@@ -315,7 +366,11 @@ export default {
 
             const imageFromPalimpsestLayer = new Image()
             imageFromPalimpsestLayer.onload = () => {
-                this.layers.palimpsestStorage = imageFromPalimpsestLayer
+                this.layers.palimpsestStorage.image = imageFromPalimpsestLayer
+                if (this.toolbox.powder.used) {
+                    this.layers.palimpsestStorage.x = 0
+                    this.layers.palimpsestStorage.y = 0
+                }
             }
             imageFromPalimpsestLayer.src = palimpsestImage
         },
@@ -383,12 +438,25 @@ export default {
          * start drawing.
          */
         handleMouseDown(e) {
+            this.lastPointerPosition = this.stage.node.getPointerPosition()
+
             if (this.canDraw === true) {
                 this.isDrawing = true
             }
-            this.lastPointerPosition = this.stage.node.getPointerPosition()
+
+            if (this.toolbox.activeTool === 'cuttingKnife') {
+                this.toolbox.cuttingKnife.canDraw = true
+                this.createCuttingRectangle()
+            }
         },
         handleMouseMove(e) {
+            if (
+                this.toolbox.activeTool === 'cuttingKnife' &&
+                this.toolbox.cuttingKnife.canDraw
+            ) {
+                this.drawCuttingRectangle()
+            }
+
             if (!this.isDrawing) {
                 return
             }
@@ -425,6 +493,13 @@ export default {
          * the drawing should stop.
          */
         handleMouseUp(e) {
+            if (
+                this.toolbox.activeTool === 'cuttingKnife' &&
+                this.toolbox.cuttingKnife.canDraw
+            ) {
+                this.cutCanvasSize()
+            }
+
             if (this.canDraw && this.isDrawing && this.bubbleEnabled) {
                 this.timeout = setTimeout(() => {
                     this.$bus.$emit('continue_with_story')
@@ -434,6 +509,101 @@ export default {
             this.saveLayerContent()
 
             this.isDrawing = false
+        },
+        /**
+         * Create new rectangle config.
+         */
+        createCuttingRectangle() {
+            if (this.findCuttingRectangle() < 0) {
+                this.rectangles.push({
+                    x: 0,
+                    y: 0,
+                    stroke: 'RGBA(26, 94, 129, 0.5)',
+                    dash: [3, 3],
+                    listening: false,
+                    isCutting: true
+                })
+            }
+        },
+        /**
+         * Find cutting rectangle inside array of rectangles. There should
+         * be always only one cutting rectangle for the sake of simplicity!
+         *
+         * @return {Number} index of cutting rectangle.
+         */
+        findCuttingRectangle() {
+            return this.rectangles.findIndex((rect) => {
+                return rect.isCutting === true
+            })
+        },
+        /**
+         * Draw cutting rectangle so user see how big area will be cropped.
+         * Because we use vue components it is possible to modify x and y coords
+         * directly, also the widht and height props are changed.
+         */
+        drawCuttingRectangle() {
+            const currentPosition = this.stage.node.getPointerPosition()
+
+            const rectanglePosition = this.reverse(
+                this.lastPointerPosition,
+                currentPosition
+            )
+
+            const index = this.findCuttingRectangle()
+
+            if (index >= 0) {
+                const rectangle = this.$refs.rectangle[index].getNode()
+
+                rectangle.x(rectanglePosition.x1)
+                rectangle.y(rectanglePosition.y1)
+                rectangle.width(rectanglePosition.x2 - rectanglePosition.x1)
+                rectangle.height(rectanglePosition.y2 - rectanglePosition.y1)
+
+                rectangle.visible(true)
+
+                this.stage.node.draw()
+            }
+        },
+        /**
+         * This method handles the actual canvas cropping. When the rectangle is
+         * finished, the canvas size is set to it's width and height. Similarly
+         * layer storages are required to be moved so it does not look like we
+         * cut different part of page.
+         *
+         * @todo Add breakpoints so the canvas is not too small.
+         */
+        cutCanvasSize() {
+            const index = this.findCuttingRectangle()
+
+            if (index >= 0) {
+                const cuttingRectangle = this.$refs.rectangle[index].getNode()
+
+                this.setCanvasSize(
+                    null,
+                    cuttingRectangle.width(),
+                    cuttingRectangle.height()
+                )
+
+                // I'm sure this can be handled in a better way, but for now
+                // it works. We set x and y position of background according to
+                // x and y position of drawn rectangle.
+                if (this.toolbox.cuttingKnife.canDraw) {
+                    this.layers.manuscriptStorage.x = -cuttingRectangle.x()
+                    this.layers.manuscriptStorage.y = -cuttingRectangle.y()
+                    this.layers.backgroundStorage.x = -cuttingRectangle.x()
+                    this.layers.backgroundStorage.y = -cuttingRectangle.y()
+                    this.layers.palimpsestStorage.x = -cuttingRectangle.x()
+                    this.layers.palimpsestStorage.y = -cuttingRectangle.y()
+                }
+
+                this.timeout = setTimeout(() => {
+                    this.$bus.$emit('continue_with_story')
+                }, 1000)
+
+                this.toolbox.cuttingKnife.canDraw = false
+
+                cuttingRectangle.visible(false)
+            }
         },
         /**
          * Here we'll set colour for the ink brush.
@@ -513,7 +683,6 @@ export default {
 
             this.canDraw = false
             this.toolbox.lines.highlighted = false
-            const container = this.$refs.container
 
             if (!this.toolbox.lines.used) {
                 this.toolbox.lines.used = true
@@ -542,7 +711,7 @@ export default {
                     }
                 },
                 {
-                    x: container.offsetWidth - 200,
+                    x: this.stage.node.width() - 200,
                     y: 80,
                     width: 10,
                     height: 10,
@@ -571,7 +740,7 @@ export default {
                     }
                 },
                 {
-                    x: container.offsetWidth - 200,
+                    x: this.stage.node.width() - 200,
                     y: 160,
                     width: 10,
                     height: 10,
@@ -600,7 +769,7 @@ export default {
                     }
                 },
                 {
-                    x: container.offsetWidth - 200,
+                    x: this.stage.node.width() - 200,
                     y: 240,
                     width: 10,
                     height: 10,
@@ -723,35 +892,17 @@ export default {
                 }
             } else {
                 clearTimeout(this.timeout)
+
+                this.toolbox.activeTool = 'cuttingKnife'
+                this.toolbox.cuttingKnife.highlighted = false
                 this.toolbox.cuttingKnife.used = true
-
-                const container = this.$refs.container
-                if (!container) {
-                    return
-                }
-                if (this.toolbox.cuttingKnife.originalWidth === 0) {
-                    this.toolbox.cuttingKnife.originalWidth =
-                        container.offsetWidth
-                }
-                const width = this.toolbox.cuttingKnife.originalWidth / 100
-                const newWidth = width * this.toolbox.cuttingKnife.width
-                document.getElementById('canvas-editor').style.width =
-                    newWidth + 'px'
-
-                this.setCanvasSize(0, newWidth)
-
-                this.timeout = setTimeout(() => {
-                    this.$bus.$emit('continue_with_story')
-                }, 2000)
-
-                this.toolbox.cuttingKnife.width =
-                    this.toolbox.cuttingKnife.width > 20
-                        ? this.toolbox.cuttingKnife.width - 10
-                        : this.toolbox.cuttingKnife.originalWidth
             }
         },
         /**
-         * Check whether objects colided.
+         * Helper method to check whether objects collided.
+         *
+         * @param {Object} r1
+         * @param {Object} r2
          */
         haveIntersection(r1, r2) {
             return !(
@@ -760,6 +911,33 @@ export default {
                 r2.y > r1.y + r1.height ||
                 r2.y + r2.height < r1.y
             )
+        },
+        /**
+         * Helper method to get rectangle position, width and height.
+         *
+         * @param {Object} r1
+         * @param {Object} r2
+         */
+        reverse(r1, r2) {
+            let r1x = r1.x
+            let r1y = r1.y
+            let r2x = r2.x
+            let r2y = r2.y
+            let d = null
+
+            if (r1x > r2x) {
+                d = Math.abs(r1x - r2x)
+                r1x = r2x
+                r2x = r1x + d
+            }
+
+            if (r1y > r2y) {
+                d = Math.abs(r1y - r2y)
+                r1y = r2y
+                r2y = r1y + d
+            }
+
+            return { x1: r1x, y1: r1y, x2: r2x, y2: r2y }
         }
     }
 }
@@ -779,6 +957,7 @@ export default {
 .konvajs-content {
     width: 100%;
     height: 60vh;
+    margin: 0 auto;
 }
 .medium-size {
     width: 80%;

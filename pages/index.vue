@@ -11,10 +11,10 @@
             <figure>
                 <img
                     src="/imgs/avatar_mouse.png"
-                    @click="setGuide('/imgs/avatar_mouse.png')"
                     :class="{
                         selected: guideAvatar === '/imgs/avatar_mouse.png'
                     }"
+                    @click="setGuide('/imgs/avatar_mouse.png')"
                 />
                 <figcaption>
                     {{ $t('guide.mouse') }}
@@ -23,10 +23,10 @@
             <figure>
                 <img
                     src="/imgs/avatar_bunny.png"
-                    @click="setGuide('/imgs/avatar_bunny.png')"
                     :class="{
                         selected: guideAvatar === '/imgs/avatar_bunny.png'
                     }"
+                    @click="setGuide('/imgs/avatar_bunny.png')"
                 />
                 <figcaption>
                     {{ $t('guide.rabbit') }}
@@ -35,10 +35,10 @@
             <figure>
                 <img
                     src="/imgs/avatar_dragon.png"
-                    @click="setGuide('/imgs/avatar_dragon.png')"
                     :class="{
                         selected: guideAvatar === '/imgs/avatar_dragon.png'
                     }"
+                    @click="setGuide('/imgs/avatar_dragon.png')"
                 />
                 <figcaption>
                     {{ $t('guide.dragon') }}

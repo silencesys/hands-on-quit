@@ -10,7 +10,7 @@
         <div />
         <konva-canvas
             :key="canvas.key"
-            :customBackground="canvas.background"
+            :custom-background="canvas.background"
             :stage="canvas.key"
             class="empty-margin"
         />
@@ -36,11 +36,6 @@ export default {
             }
         }
     },
-    created() {
-        this.$bus.$on('resetTheEditor', () => {
-            this.changeEditor()
-        })
-    },
     computed: {
         guideStep() {
             return this.$store.state.guide.step
@@ -48,6 +43,11 @@ export default {
         guideStage() {
             return this.$store.state.guide.stage
         }
+    },
+    created() {
+        this.$bus.$on('resetTheEditor', () => {
+            this.changeEditor()
+        })
     },
     methods: {
         ...mapMutations({
