@@ -11,7 +11,7 @@
         <konva-canvas
             :key="canvas.key"
             :custom-background="canvas.background"
-            :stage="canvas.key"
+            :stage-name="canvas.key"
             class="empty-margin"
         />
     </div>
@@ -31,6 +31,7 @@ export default {
         return {
             canvas: {
                 key: 'manuscript',
+                stageName: 'manuscript',
                 background: '/imgs/background_canvas.png',
                 showContinueToEditor: true
             }

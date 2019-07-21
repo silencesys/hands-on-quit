@@ -164,10 +164,6 @@ export default {
             lines: [],
             rectangles: [],
             timeout: null,
-            brushConfig: {
-                color: '#55DD33',
-                size: 5
-            },
             bubbleEnabled: true,
             // Toolbox settings
             toolbox: {
@@ -180,19 +176,28 @@ export default {
                 scrappingKnife: {
                     highlighted: false,
                     used: false,
-                    enabled: true
+                    enabled: true,
+                    brushColor: 'RGBA(220, 202, 167, 0.02)',
+                    brushSize: 120,
+                    brushLineJoin: 'round'
                 },
                 cuttingKnife: {
                     highlighted: false,
                     used: false,
                     enabled: false,
                     canDraw: false,
-                    mode: 'crop'
+                    mode: 'crop',
+                    brushColor: 'RGBA(217, 204, 178, 0.04)',
+                    brushSize: 20,
+                    brushLineJoin: 'round'
                 },
                 powder: {
                     highlighted: false,
                     used: false,
-                    enabled: false
+                    enabled: false,
+                    brushColor: 'RGBA(230, 217, 191, 0.05)',
+                    brushSize: 100,
+                    brushLineJoin: 'round'
                 },
                 lines: {
                     highlighted: false,
@@ -203,7 +208,10 @@ export default {
                 ink: {
                     highlighted: false,
                     used: false,
-                    enabled: false
+                    enabled: false,
+                    brushColor: 'RGBA(0, 0, 0, .5)',
+                    brushSize: 3,
+                    brushLineJoin: 'round'
                 }
             }
         }
@@ -318,14 +326,15 @@ export default {
         handleMouseUp(event) {
             if (
                 this.toolbox.drawingTools.canDraw &&
-                this.toolbox.drawingTools.isDrawing &&
-                this.bubbleEnabled
+                this.toolbox.drawingTools.isDrawing
             ) {
                 this.toolbox.drawingTools.isDrawing = false
 
-                this.timeout = setTimeout(() => {
-                    this.$bus.$emit('continue_with_story')
-                }, 2500)
+                if (this.bubbleEnabled) {
+                    this.timeout = setTimeout(() => {
+                        this.$bus.$emit('continue_with_story')
+                    }, 2500)
+                }
             } else if (
                 this.toolbox.activeTool === 'cuttingKnife' &&
                 this.toolbox.cuttingKnife.canDraw &&
@@ -334,6 +343,8 @@ export default {
                 this.cutCanvasSize()
             }
 
+            // Always save layer content, becuase if user change windows size
+            // layer content might get deleted.
             this.saveLayerContent()
         },
         /**
@@ -439,14 +450,25 @@ export default {
             }
             imageFromPalimpsestLayer.src = palimpsestImage
         },
+        /**
+         * Handles free drawing. At the beginning we set brush colour, size and
+         * so on. Then we can start tracking the cursor and drawing a shape on
+         * it's position.
+         * Also each drawing clears timeout so timed events are not fired during
+         * drawing (we set them again after mb or touch release).
+         */
         startFreeDrawing() {
             clearTimeout(this.timeout)
 
-            context.globalCompositeOperation = 'source-over'
-            context.strokeStyle = this.brushConfig.color
-            context.lineWidth = this.brushConfig.size
-            context.lineJoin = 'round'
+            const activeTool = this.toolbox.activeTool
 
+            // Configure brush
+            context.globalCompositeOperation = 'source-over'
+            context.strokeStyle = this.toolbox[activeTool].brushColor
+            context.lineWidth = this.toolbox[activeTool].brushSize
+            context.lineJoin = this.toolbox[activeTool].brushLineJoin
+
+            // Start drawing
             context.beginPath()
 
             let localPos = {
@@ -642,11 +664,6 @@ export default {
             this.toolbox.drawingTools.canDraw = true
             this.toolbox.ink.highlighted = false
             this.toolbox.ink.used = true
-
-            this.brushConfig = {
-                color: 'RGBA(0, 0, 0, .8)',
-                size: 5
-            }
         },
         /**
          * This is actually not an eraser, but another brush
@@ -662,11 +679,6 @@ export default {
             this.toolbox.drawingTools.canDraw = true
             this.toolbox.scrappingKnife.highlighted = false
             this.toolbox.scrappingKnife.used = true
-
-            this.brushConfig = {
-                color: 'RGBA(220, 202, 167, 0.1)',
-                size: 50
-            }
         },
         /**
          * Powder is also done with brush.
@@ -680,15 +692,7 @@ export default {
 
             this.toolbox.drawingTools.canDraw = true
             this.toolbox.powder.highlighted = false
-
-            if (!this.toolbox.powder.used) {
-                this.toolbox.powder.used = true
-            }
-
-            this.brushConfig = {
-                color: 'RGBA(230, 217, 191, 0.1)',
-                size: 100
-            }
+            this.toolbox.powder.used = true
         },
         /**
          * This method will add dots on the canvas and prepare lines
@@ -909,11 +913,6 @@ export default {
                 this.toolbox.drawingTools.canDraw = true
                 this.toolbox.cuttingKnife.highlighted = false
                 this.toolbox.cuttingKnife.used = true
-
-                this.brushConfig = {
-                    color: 'RGBA(220, 202, 167, 0.1)',
-                    size: 50
-                }
             } else {
                 clearTimeout(this.timeout)
 
