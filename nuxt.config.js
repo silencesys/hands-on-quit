@@ -34,7 +34,8 @@ export default {
     plugins: [
         '~/plugins/Konva.js',
         '~/plugins/i18n.js',
-        '~/plugins/EventBus.js'
+        '~/plugins/EventBus.js',
+        '~/plugins/FontAwesome.js'
     ],
     /*
      ** Nuxt.js modules
