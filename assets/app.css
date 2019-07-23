@@ -139,7 +139,7 @@ img {
     text-align: center;
     margin-top: -10vh;
     margin-bottom: 5vh;
-    max-width: 800px;
+    width: 100%;
 }
 .star-image {
     border: none;
