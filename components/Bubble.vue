@@ -1,25 +1,30 @@
 <template>
-    <div v-if="visible" class="guide-content-wrapper star">
-        <div v-if="guideStep === 18 || guideStep === 12" class="star-wrapper">
-            <img
-                v-for="(star, index) in starCount"
-                :key="index"
-                src="/imgs/star.png"
-                class="star-image"
-            />
-        </div>
-        <div class="guide-wrapper">
-            <div class="guide-comment">
-                <img :src="getAvatar" alt="guide_avatar" />
-                <div class="comment">
-                    <slot />
-                </div>
+    <transition name="fade">
+        <div v-if="visible" class="guide-content-wrapper star">
+            <div
+                v-if="guideStep === 18 || guideStep === 12"
+                class="star-wrapper"
+            >
+                <img
+                    v-for="(star, index) in starCount"
+                    :key="index"
+                    src="/imgs/star.png"
+                    class="star-image"
+                />
             </div>
-            <button class="button" @click="continueGuide">
-                {{ continueText }}
-            </button>
+            <div class="guide-wrapper">
+                <div class="guide-comment">
+                    <img :src="getAvatar" alt="guide_avatar" />
+                    <div class="comment">
+                        <slot />
+                    </div>
+                </div>
+                <button class="button" @click="continueGuide">
+                    {{ continueText }}
+                </button>
+            </div>
         </div>
-    </div>
+    </transition>
 </template>
 
 <script>

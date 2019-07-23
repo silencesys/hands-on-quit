@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 #### Fixed and changed
 - Drawing tools were again modified, so drawing can be fun again.
 - Updated favicon!
+- Guide has blured overlay background.
 #### Added
 - Footer with copyright and link to github repo. 
 
