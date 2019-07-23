@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 ## Published
+### 23/07/2019
+#### Fixed and changed
+- Drawing tools were again modified, so drawing can be fun again.
+- Updated favicon!
+#### Added
+- Footer with copyright and link to github repo. 
+
+---
+
 ### 21/07/2019
 #### Fixed and changed
 - Resizing browser window will not delete drawn content.
@@ -23,5 +32,6 @@ All notable changes to this project will be documented in this file.
 <br>
 
 ## 🌀 Unpublished
-### Fixed
+#### Fixed and changed
 ### Added
+#### Removed

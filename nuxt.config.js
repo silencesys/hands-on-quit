@@ -4,7 +4,7 @@ export default {
      ** Headers of the page
      */
     head: {
-        title: process.env.npm_package_name || '',
+        title: 'The Creative Scriptorium',
         meta: [
             { charset: 'utf-8' },
             {
@@ -27,14 +27,15 @@ export default {
     /*
      ** Global CSS
      */
-    css: [],
+    css: ['@assets/app.css'],
     /*
      ** Plugins to load before mounting the App
      */
     plugins: [
         '~/plugins/Konva.js',
         '~/plugins/i18n.js',
-        '~/plugins/EventBus.js'
+        '~/plugins/EventBus.js',
+        '~/plugins/FontAwesome.js'
     ],
     /*
      ** Nuxt.js modules

@@ -1,19 +1,18 @@
 <template>
-    <div class="container">
-        <guide-bubble>
-            <p
-                v-html="
-                    $t('guide_messages.stage_' + guideStage + '_' + guideStep)
-                "
+    <div>
+        <div class="container">
+            <guide-bubble>
+                <p v-html="$t(guideTranslation)" />
+            </guide-bubble>
+            <div />
+            <konva-canvas
+                :key="canvas.key"
+                :custom-background="canvas.background"
+                :stage-name="canvas.key"
+                class="empty-margin"
             />
-        </guide-bubble>
-        <div />
-        <konva-canvas
-            :key="canvas.key"
-            :custom-background="canvas.background"
-            :stage-name="canvas.key"
-            class="empty-margin"
-        />
+        </div>
+        <site-footer />
     </div>
 </template>
 
@@ -21,11 +20,13 @@
 import { mapMutations } from 'vuex'
 import KonvaCanvas from '~/components/Canvas.vue'
 import GuideBubble from '~/components/Bubble.vue'
+import SiteFooter from '~/components/Footer'
 
 export default {
     components: {
         KonvaCanvas,
-        GuideBubble
+        GuideBubble,
+        SiteFooter
     },
     data() {
         return {
@@ -43,6 +44,11 @@ export default {
         },
         guideStage() {
             return this.$store.state.guide.stage
+        },
+        guideTranslation() {
+            return (
+                'guide_messages.stage_' + this.guideStage + '_' + this.guideStep
+            )
         }
     },
     created() {
@@ -66,25 +72,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.container {
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-}
-.button {
-    background: #b04130;
-    font-size: 20px;
-    border-radius: 8px;
-    margin-top: 10px;
-    color: #fff;
-    padding: 0.75em;
-    display: inline-block;
-    outline: none;
-    cursor: pointer;
-    border: none;
-}
-</style>
