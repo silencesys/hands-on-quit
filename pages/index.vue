@@ -69,38 +69,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.content-container {
-    background: #d6c49f;
-    padding: 3em;
-    box-sizing: border-box;
-    border-radius: 4px;
-}
-figure {
-    width: 150px;
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 15px;
-}
-header h1 {
-    font-size: 50px;
-}
-.guides {
-    margin-top: 3em;
-    margin-bottom: 3em;
-}
-.guides h2 {
-    margin-bottom: 1em;
-}
-.selected {
-    border-color: #b04130;
-}
-p {
-    font-size: 22px;
-}
-a {
-    text-decoration: none;
-    font-size: 20px;
-}
-</style>

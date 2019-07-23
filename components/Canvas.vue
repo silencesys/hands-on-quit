@@ -177,7 +177,7 @@ export default {
                     highlighted: false,
                     used: false,
                     enabled: true,
-                    brushColor: 'RGBA(220, 202, 167, 0.02)',
+                    brushColor: 'RGBA(220, 202, 167, 0.06)',
                     brushSize: 120,
                     brushLineJoin: 'round'
                 },
@@ -187,7 +187,7 @@ export default {
                     enabled: false,
                     canDraw: false,
                     mode: 'crop',
-                    brushColor: 'RGBA(217, 204, 178, 0.04)',
+                    brushColor: 'RGBA(217, 204, 178, 0.15)',
                     brushSize: 20,
                     brushLineJoin: 'round'
                 },
@@ -195,7 +195,7 @@ export default {
                     highlighted: false,
                     used: false,
                     enabled: false,
-                    brushColor: 'RGBA(230, 217, 191, 0.05)',
+                    brushColor: 'RGBA(230, 217, 191, 0.1)',
                     brushSize: 100,
                     brushLineJoin: 'round'
                 },
@@ -209,7 +209,7 @@ export default {
                     highlighted: false,
                     used: false,
                     enabled: false,
-                    brushColor: 'RGBA(0, 0, 0, .5)',
+                    brushColor: 'RGBA(0, 0, 0, .7)',
                     brushSize: 3,
                     brushLineJoin: 'round'
                 }

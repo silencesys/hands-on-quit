@@ -66,25 +66,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.container {
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-}
-.button {
-    background: #b04130;
-    font-size: 20px;
-    border-radius: 8px;
-    margin-top: 10px;
-    color: #fff;
-    padding: 0.75em;
-    display: inline-block;
-    outline: none;
-    cursor: pointer;
-    border: none;
-}
-</style>
