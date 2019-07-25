@@ -203,7 +203,15 @@ export default {
                     highlighted: false,
                     used: false,
                     connected: 0,
-                    enabled: false
+                    enabled: false,
+                    dotColor: 'RGBA(0, 0, 0, 0.75)',
+                    dotColorSuccess: 'RGBA(145, 167, 110, 0.75)',
+                    lineColor: 'RGBA(0, 0, 0, 0.50)',
+                    startingPosition: 45,
+                    visibleCircleWidth: 7,
+                    visibleCircleHeight: 7,
+                    draggableCircleWidth: 70,
+                    draggableCircleHeight: 70
                 },
                 ink: {
                     highlighted: false,
@@ -698,148 +706,93 @@ export default {
          * This method will add dots on the canvas and prepare lines
          * which are connecting them. User is actually not drawing lines
          * but is moving with invisible circle, that is connected with line.
-         *
-         * There is much better method to draw lines in API, but there
-         * was not enough time to implement it.
          */
         addLiningDots() {
             this.toolbox.drawingTools.canDraw = false
+            this.toolbox.lines.highlighted = false
+            this.toolbox.lines.used = true
+
             this.$bus.$emit('hide_bubble')
             this.unlockTools()
 
             this.toolbox.activeTool = 'lines'
 
-            this.toolbox.drawingTools.canDraw = false
-            this.toolbox.lines.highlighted = false
+            // Set minimal Y multiplier to be height of the draggbox circle
+            const minYMultipler = this.toolbox.lines.draggableCircleHeight
+            // Count available rows based on node height and dragbox circle's height
+            const availableRows = Math.floor(
+                this.stage.node.height() / (minYMultipler + 20)
+            )
+            // Get available width in percents so we can position dots.
+            const availableWidthPercent = this.stage.node.width() / 100
 
-            if (!this.toolbox.lines.used) {
-                this.toolbox.lines.used = true
+            // @todo x and y positions still needs some love (remove fixed values)
+            const lineStart = availableWidthPercent * 10
+            const xPositionStart = lineStart > 30 ? lineStart : 30
+
+            this.toolbox.lines.startingPosition = xPositionStart + 15
+
+            const lineEnd = availableWidthPercent * 70
+            const xPositionEnd = lineEnd > 70 ? lineEnd : 70
+
+            const minYPosition = this.toolbox.lines.draggableCircleHeight + 10
+
+            // Append dots and lines to canvas
+            for (let i = 0; i < availableRows; i++) {
+                const yPosition = minYPosition * i + minYMultipler
+
+                this.circles.push(
+                    {
+                        x: xPositionStart,
+                        y: yPosition,
+                        width: this.toolbox.lines.visibleCircleWidth,
+                        height: this.toolbox.lines.visibleCircleHeight,
+                        fill: this.toolbox.lines.dotColor,
+                        start: i
+                    },
+                    {
+                        x: xPositionStart,
+                        y: yPosition,
+                        width: this.toolbox.lines.draggableCircleWidth,
+                        height: this.toolbox.lines.draggableCircleHeight,
+                        fill: 'transparent',
+                        draggable: true,
+                        drag: i,
+                        dragBoundFunc(pos) {
+                            return {
+                                x: pos.x,
+                                y: this.absolutePosition().y
+                            }
+                        }
+                    },
+                    {
+                        x: xPositionEnd,
+                        y: yPosition,
+                        width: this.toolbox.lines.visibleCircleWidth,
+                        height: this.toolbox.lines.visibleCircleHeight,
+                        fill: this.toolbox.lines.dotColor
+                    }
+                )
+
+                const circleStart = this.circles.findIndex((circle) => {
+                    return circle.start === i
+                })
+                const circleDrag = this.circles.findIndex((circle) => {
+                    return circle.drag === i
+                })
+
+                this.lines.push({
+                    points: [
+                        this.circles[circleStart].x,
+                        this.circles[circleStart].y,
+                        this.circles[circleDrag].x,
+                        this.circles[circleDrag].y
+                    ],
+                    stroke: this.toolbox.lines.lineColor,
+                    strokeWidth: 1,
+                    circleIndex: circleDrag
+                })
             }
-
-            this.circles = [
-                {
-                    x: 10,
-                    y: 80,
-                    width: 10,
-                    height: 10,
-                    fill: 'blue'
-                },
-                {
-                    x: 10,
-                    y: 80,
-                    width: 70,
-                    height: 70,
-                    fill: 'transparent',
-                    draggable: true,
-                    dragBoundFunc(pos) {
-                        return {
-                            x: pos.x,
-                            y: this.absolutePosition().y
-                        }
-                    }
-                },
-                {
-                    x: this.stage.node.width() - 200,
-                    y: 80,
-                    width: 10,
-                    height: 10,
-                    fill: 'blue'
-                },
-                // Dot group 2: 3
-                {
-                    x: 10,
-                    y: 160,
-                    width: 10,
-                    height: 10,
-                    fill: 'blue'
-                },
-                {
-                    x: 10,
-                    y: 160,
-                    width: 70,
-                    height: 70,
-                    fill: 'transparent',
-                    draggable: true,
-                    dragBoundFunc(pos) {
-                        return {
-                            x: pos.x,
-                            y: this.absolutePosition().y
-                        }
-                    }
-                },
-                {
-                    x: this.stage.node.width() - 200,
-                    y: 160,
-                    width: 10,
-                    height: 10,
-                    fill: 'blue'
-                },
-                // Dot group: index 6
-                {
-                    x: 10,
-                    y: 240,
-                    width: 10,
-                    height: 10,
-                    fill: 'blue'
-                },
-                {
-                    x: 10,
-                    y: 240,
-                    width: 70,
-                    height: 70,
-                    fill: 'transparent',
-                    draggable: true,
-                    dragBoundFunc(pos) {
-                        return {
-                            x: pos.x,
-                            y: this.absolutePosition().y
-                        }
-                    }
-                },
-                {
-                    x: this.stage.node.width() - 200,
-                    y: 240,
-                    width: 10,
-                    height: 10,
-                    fill: 'blue'
-                }
-            ]
-
-            this.lines = [
-                {
-                    points: [
-                        this.circles[0].x,
-                        this.circles[0].y,
-                        this.circles[1].x,
-                        this.circles[1].y
-                    ],
-                    stroke: 'black',
-                    strokeWidth: 1,
-                    circleIndex: 1
-                },
-                {
-                    points: [
-                        this.circles[3].x,
-                        this.circles[3].y,
-                        this.circles[4].x,
-                        this.circles[4].y
-                    ],
-                    stroke: 'black',
-                    strokeWidth: 1,
-                    circleIndex: 4
-                },
-                {
-                    points: [
-                        this.circles[6].x,
-                        this.circles[6].y,
-                        this.circles[7].x,
-                        this.circles[7].y
-                    ],
-                    stroke: 'black',
-                    strokeWidth: 1,
-                    circleIndex: 7
-                }
-            ]
         },
         /**
          * This method handles movement of the invisible circles, when
@@ -852,10 +805,10 @@ export default {
             }
 
             const points = [
-                this.circles[index - 1].x,
-                this.circles[index - 1].y,
+                this.circles[index].x,
+                this.circles[index].y,
                 this.$refs.circle[index].getNode().getX() + 35,
-                this.circles[index - 1].y
+                this.circles[index].y
             ]
 
             const linePosition = this.lines.findIndex((element) => {
@@ -872,18 +825,20 @@ export default {
                     return
                 }
                 if (this.haveIntersection(group.getClientRect(), targetRect)) {
-                    if (group.getX() > 10) {
+                    if (group.getX() > this.toolbox.lines.startingPosition) {
                         target.draggable(false)
                         this.toolbox.lines.connected++
 
-                        if (this.toolbox.lines.connected === 3) {
+                        if (
+                            this.toolbox.lines.connected === this.lines.length
+                        ) {
                             this.toolbox.lines.enabled = false
                             this.timeout = setTimeout(() => {
                                 this.$bus.$emit('continue_with_story')
                             }, 1000)
                         }
                     }
-                    group.fill('red')
+                    group.fill(this.toolbox.lines.dotColorSuccess)
                 }
             })
 
