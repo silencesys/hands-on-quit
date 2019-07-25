@@ -167,6 +167,116 @@ img {
     color: var(--red-orange)
 }
 
+
+#konva-container {
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+#canvas-editor {
+    height: 90%;
+    position: relative;
+    display: block;
+    margin: 0 auto;
+}
+.konvajs-content {
+    width: 100%;
+    height: 60vh;
+    margin: 0 auto;
+}
+.medium-size {
+    width: 80%;
+    height: 60vh;
+}
+.small-size {
+    width: 60%;
+    height: 60vh;
+}
+.table {
+    background: url('/imgs/background_table.png') no-repeat center -30px;
+    background-clip: border-box;
+    background-size: cover;
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 3em 3em;
+}
+.toolbox-wrapper {
+    padding: 0px 1.5em 0 0;
+    text-align: center;
+}
+.button-box {
+    background: url('/imgs/background_tool.png') no-repeat 0 0;
+    border: none;
+    width: 150px;
+    height: 238px;
+    outline: none;
+    display: inline-block;
+    margin-right: -23px;
+    position: relative;
+    padding-top: 195px;
+    color: white;
+}
+.button-box-right {
+    background: url('/imgs/background_tool-right.png') no-repeat 0 0;
+}
+.tool-disabled::before {
+    opacity: 0.2;
+}
+.cutting-knife::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 100px;
+    background: url('/imgs/tools.png') no-repeat 0 -100px;
+}
+.scrapping-knife::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 100px;
+    background: url('/imgs/tools.png') no-repeat 0 0;
+}
+.powder::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 100px;
+    background: url('/imgs/tools.png') no-repeat 0 -200px;
+}
+.ruler::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 120px;
+    background: url('/imgs/tools.png') no-repeat 0 -300px;
+}
+.ink::before {
+    content: ' ';
+    display: block;
+    width: 126px;
+    height: 100px;
+    position: absolute;
+    margin-left: 10px;
+    top: 100px;
+    background: url('/imgs/tools.png') no-repeat 0 -400px;
+}
+.active-tool {
+    background-position-x: -300px;
+}
+
 .fade-enter-active, .fade-leave-active {
     transition: opacity .3s ease-in-out;
 }
