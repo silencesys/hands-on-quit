@@ -7,7 +7,7 @@ a learning app for primary school children. It was designed as a prototype of th
 
 # 💻 Demo
 
-Preview of the prototype is available at [creative-scriptorium.silencesys.dev/](https://creative-scriptorium.silencesys.dev/).
+Preview of the prototype is available at [creative-scriptorium.silencesys.dev](https://creative-scriptorium.silencesys.dev/).
 
 <br>
 
