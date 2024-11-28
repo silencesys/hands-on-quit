@@ -1,3 +1,36 @@
 {
-    "site_title": "placeholder_site_title"
+    "site_title": "Kreativní scriptorium",
+    "site_description": "Chtěli byste zjistit, jak se psaly knihy v dávných dobách?",
+    "site_start_button": "Odhalte záhady a tajemství",
+    "site_pick_guide": "Vyber si svého pomocníka!",
+    "button_continue": "Pokračovat",
+    "button_continue_freely": "Vidím, že mě už nepotřebuješ, měj se pěkně!",
+    "copyright": "Site © {year} Charlie Barranu, Dominika Kecsöová, Světlana Müllerová, Martin Roček.",
+    "fork_on_github": "Fork project on ",
+    "guide_messages": {
+        "stage_1_1": "Před stovkami let lidé psali všechny knihy ručně na zvířecí kůži. Tyto se nazývaly <b>rukopisy</b>. Pojďme si zkusit udělat vlastní!",
+        "stage_1_2": "Pro začátek musíme připravit stránku. Zde je natažená celá kůže. Pojďme ji trochu vyčistit. Vezměte škrabací nůž a vyškrábněte všechny tečky!",
+        "stage_1_5": "Teď vezmi druhý nůž a vystřihni stránku tak velkou, jak chceš! Jaký tvar je podle tebe nejlepší?",
+        "stage_1_6": "Je čas pokrýt stránku trochou prášku. To způsobí, že inkoust přilne ke stránce.",
+        "stage_1_8": "Čáry nám pomohou udržet písmena rovně. Udělal jsem pro tebe několik teček, spoj je zleva doprava, aby vznikly čáry.",
+        "stage_1_10": "Tvoje stránka je připravena k psaní! Tady jsou některé nástroje, které můžeš použít: namoč pero do inkoustu, abys mohl psát, a pokud uděláš chybu, použij nůž jako gumu, abys ji vymazal.",
+        "stage_1_12": "Výborně! Tvůj rukopis vypadá úžasně! Právě jsi získal hvězdu.",
+        "stage_1_13": "Wow, to byla těžká práce. Pamatuješ si, jak jsi použil nůž k vymazání slov? V dávných dobách to lidé dělali s celými knihami! Zkusme to!",
+        "stage_1_15": "Páni! To byla zábava. Máš doma nějaké knihy, které bys chtěl vymazat? Špatná zpráva: nože fungují pouze na zvířecí kůži, které se říká <b>pergamen</b>.",
+        "stage_1_16": "Jsi připraven znovu psát? Bav se!",
+        "stage_1_18": "Dobrá práce, právě jsi vytvořil <b>palimpsest</b>! Palimpsesty jsou knihy, které jsou vymazány a znovu napsány. Tady je tvoje druhá hvězda!"
+    },
+    "guide": {
+        "mouse": "Ahoj, jsem myška Edgard a bydlím v knihovně.",
+        "dragon": "Rád tě poznávám, já jsem drak Ethelflaed a žiji na zámku.",
+        "rabbit": "Ahoj, jmenuji se Edwina a jsem králičí rytířka."
+    },
+    "tools": {
+        "scrapping_knife": "Nůž na škrabání",
+        "cutting_knife": "Nůž",
+        "ink": "Inkoust",
+        "add_lines": "Pravítko",
+        "powder": "Prášek",
+        "back": "Zpět"
+    }
 }

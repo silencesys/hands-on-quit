@@ -216,6 +216,9 @@ img {
     position: relative;
     padding-top: 195px;
     color: white;
+    &.higlighted {
+        background: url('/imgs/background_tool.png') no-repeat -150px 0;
+    }
 }
 .button-box-right {
     background: url('/imgs/background_tool-right.png') no-repeat 0 0;
@@ -282,4 +285,26 @@ img {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
+}
+.reset-wrapper {
+    width: 100%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+.reset-button {
+    background: url('/imgs/button.png') no-repeat 0 0;
+    width: 250px;
+    height: 57px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white !important;
+    font-size: .9rem;
+    &:hover {
+        background-position-y: -57px;
+    }
 }

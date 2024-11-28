@@ -2,7 +2,7 @@
     <transition name="fade">
         <div v-if="visible" class="guide-content-wrapper star">
             <div
-                v-if="guideStep === 18 || guideStep === 12"
+                v-if="guideStep === 12"
                 class="star-wrapper"
             >
                 <img
@@ -39,9 +39,7 @@ export default {
                 7: 'highlightPowder',
                 9: 'highlightRuler',
                 11: 'highlightInk',
-                14: 'resetTheEditor',
-                17: 'hide_bubble',
-                19: 'disableBubble'
+                13: 'disableBubble'
             },
             visible: true
         }
@@ -60,7 +58,7 @@ export default {
             return this.$store.state.guide.avatarUrl
         },
         continueText() {
-            if (this.guideStep > 17) {
+            if (this.guideStep > 12) {
                 return this.$t('button_continue_freely')
             }
 

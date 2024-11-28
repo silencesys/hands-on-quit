@@ -12,6 +12,11 @@
                 class="empty-margin"
             />
         </div>
+        <div class="reset-wrapper">
+            <a href="/" class="reset-button">
+                Reset
+            </a>
+        </div>
         <site-footer />
     </div>
 </template>
@@ -53,13 +58,19 @@ export default {
     },
     created() {
         this.$bus.$on('resetTheEditor', () => {
-            this.changeEditor()
+            this.resetStage()
+            this.$router.push({ name: 'index' })
+        })
+        this.$bus.$on('reset', () => {
+            this.resetStage()
+            this.$router.push({ name: 'index' })
         })
     },
     methods: {
         ...mapMutations({
             updateStep: 'guide/updateStep',
-            updateStage: 'guide/updateStage'
+            updateStage: 'guide/updateStage',
+            resetStage: 'guide/reset'
         }),
         changeEditor() {
             this.canvas = {

@@ -21,5 +21,10 @@ export const mutations = {
     },
     addStar(state) {
         state.starCount++
+    },
+    reset(state) {
+        state.starCount = 0
+        state.stage = 1
+        state.step = 1
     }
 }

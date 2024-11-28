@@ -285,6 +285,9 @@ export default {
         })
     },
     methods: {
+        returnToIndex() {
+            this.$bus.$emit('reset')
+        },
         /**
          * Handle mouse down.
          *
@@ -538,7 +541,7 @@ export default {
                     this.toolbox.powder.enabled = false
                     this.toolbox.ink.enabled = true
                     break
-                case 17:
+                case 12:
                     this.toolbox.lines.enabled = false
                     this.toolbox.scrappingKnife.enabled = false
                     this.toolbox.cuttingKnife.enabled = true
